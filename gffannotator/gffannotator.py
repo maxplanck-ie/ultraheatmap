@@ -40,7 +40,7 @@ class GffAnnotator:
 
     def exportBed12(self, filename, geneids):
         with open(filename, 'w') as bed12:
-            for gid in geneid:
+            for gid in geneids:
                 try:
                     bed12.write(self.featureDb.bed12(gid) + os.linesep)
                 except:
