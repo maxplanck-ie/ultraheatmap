@@ -3,16 +3,19 @@ import os
 
 class GffAnnotator:
 
-    def __init__(self, gff_file, genome, annotation_version, fast = True):
+    def __init__(self, gff_file, fast = True, verbose = False):
         self.gff_file = gff_file
-        self.db_file = ''.join([genome+'_', annotation_version, '.dba'])
 
         self.featureDb = None
         self.__createFeatureDatabase(fast = fast)
+        self.featureTypes = [x for x in self.featureDb.featuretypes()]
+        if verbose:
+            print(self.featureTypes)
 
-    ## should it really be treated as a temporary file?
-    def __del__(self):
-        os.remove(self.db_file)
+        self.filters = list()
+        self.filters.featuretype = [x for x in self.featureDb.featureTypes()]
+        self.filters.gene_biotypes = set([x.attributes['gene_biotype'][0] for x in self.featureDb.all_features()])
+
 
     def __createFeatureDatabase(self, fast):
         if fast:
@@ -22,13 +25,12 @@ class GffAnnotator:
 
     def __createDatabase(self, disable_infer_transcripts, disable_infer_genes):
         try:
-            db = gffutils.create_db(self.gff_file, dbfn=self.db_file,
-                                keep_order=True, force = True,
+            self.featureDb = gffutils.create_db(self.gff_file, dbfn=":memory:",
+                                keep_order=True, force = False,
                                 disable_infer_transcripts=disable_infer_transcripts,
                                 disable_infer_genes = disable_infer_genes)
-        except: ## capture exceptions from gffutils properly a) wrong data b) already exists
+        except:
             pass
-        self.featureDb = gffutils.FeatureDB(dbfn=self.db_file, keep_order=True)
 
     def __geneid2Coord(self, geneid):
         return(self.featureDb[geneid])
@@ -36,8 +38,13 @@ class GffAnnotator:
     def geneId2Coordinates(self, geneids):
         return([self.__geneid2Coord(x) for x in geneids])
 
-    def filter(self):
-        pass
+    def exportBed12(self, filename, geneids):
+        with open(filename, 'w') as bed12:
+            for gid in geneid:
+                try:
+                    bed12.write(self.featureDb.bed12(gid) + os.linesep)
+                except:
+                     print ("Warning: %s not found" % gid, file=sys.stderr)
 
-    def exportBedtools():
+    def filter(self):
         pass
