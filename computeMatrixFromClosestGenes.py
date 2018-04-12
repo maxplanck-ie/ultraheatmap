@@ -15,7 +15,7 @@ def parse_args():
   """
 
   """
-  parser=argparse.ArgumentParser() #TODO add an arguments for the feature of interest
+  parser=argparse.ArgumentParser()
   #required argumnets:
   parser.add_argument("--region",
                       "-R",
@@ -84,11 +84,17 @@ def parse_args():
                       type=str,
                       help="Reference point for plotting can be set to TSS, TES or center",
                       default='center')
-  parser.add_argument("--geneTypeToFilter",
-                      "-g",
-                      dest="geneToFilter",
+  parser.add_argument("--featureTypeToFilter",
+                      "-F",
+                      dest="featureToFilter",
                       type=str,
-                      help="annotation file is filtered by the gene or transcript of interest",
+                      help="annotation file is filtered by gene, exon or transcriptt",
+                      default=None)
+  parser.add_argument("--distance",
+                      "-d",
+                      dest="distance",
+                      type=int,
+                      help="distance to look for the closest genes",
                       default=None)
 
   return parser
@@ -104,7 +110,7 @@ def main():
    find_closest_genes(vars(args),args.output+"mapped.bed")
    #compute_matrix is run over mapped.bed and .bw files
    if args.mode:
-      bigwig_list=[str(bw) for bw in args.bigwigs.split(',')] ##This can later on be used for refIndex
+      bigwig_list=[str(bw) for bw in args.bigwigs.split(',')]
       bigwig_files = " ".join(bigwig_list)
       matrix_output=os.path.join(args.output, args.mode+"_nearest_gene.matrix")
 
