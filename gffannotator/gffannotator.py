@@ -1,21 +1,18 @@
 import gffutils
 import os
+import sys
 
 class GffAnnotator:
 
     def __init__(self, gff_file, fast = True, verbose = False):
         self.gff_file = gff_file
-
+        print(self.gff_file)
         self.featureDb = None
-        self.__createFeatureDatabase(fast = fast)
-        self.featureTypes = [x for x in self.featureDb.featuretypes()]
-        if verbose:
-            print(self.featureTypes)
+        self.__createFeatureDatabase(fast = fast)      
 
-        self.filters = list()
-        self.filters.featuretype = [x for x in self.featureDb.featureTypes()]
-        self.filters.gene_biotypes = set([x.attributes['gene_biotype'][0] for x in self.featureDb.all_features()])
-
+        self.filters = {}
+        self.filters["featuretypes"] = [x for x in self.featureDb.featuretypes()]
+        self.filters["gene_biotypes"] = set([x.attributes['gene_biotype'][0] for x in self.featureDb.all_features()])
 
     def __createFeatureDatabase(self, fast):
         if fast:
@@ -40,10 +37,10 @@ class GffAnnotator:
 
     def exportBed12(self, filename, geneids):
         with open(filename, 'w') as bed12:
-            for gid in geneid:
-                try:
-                    bed12.write(self.featureDb.bed12(gid) + os.linesep)
-                except:
+             for gid in geneids:
+                 try:
+                     bed12.write(self.featureDb.bed12(gid) + os.linesep)
+                 except:
                      print ("Warning: %s not found" % gid, file=sys.stderr)
 
     def filter(self):
