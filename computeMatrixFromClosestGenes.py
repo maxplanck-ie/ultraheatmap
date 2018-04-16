@@ -10,6 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(_
 #import necessary modules
 from deeptoolsapi.computeMatrix import compute_matrix
 from coordinates.bedtools import find_closest_genes
+from coordinates.bedtools import map_peaks_to_geneID
 
 def parse_args():
   """
@@ -90,11 +91,11 @@ def parse_args():
                       type=str,
                       help="annotation file is filtered by gene, exon or transcriptt",
                       default=None)
-  parser.add_argument("--distance",
-                      "-d",
-                      dest="distance",
-                      type=int,
-                      help="distance to look for the closest genes",
+  parser.add_argument("--geneIDs",
+                      "-g",
+                      dest="geneIDtable",
+                      type=str,
+                      help="gene id table",
                       default=None)
 
   return parser
@@ -107,7 +108,8 @@ def main():
    args = parser.parse_args()
    print(args)
    #Using bedtool closest to map annotation and regions
-   find_closest_genes(vars(args),args.output+"mapped.bed")
+   map_peaks_to_geneID(vars(args))
+   #find_closest_genes(vars(args),args.output+"closestGene.bed")
    #compute_matrix is run over mapped.bed and .bw files
    if args.mode:
       bigwig_list=[str(bw) for bw in args.bigwigs.split(',')]
@@ -115,9 +117,6 @@ def main():
       matrix_output=os.path.join(args.output, args.mode+"_nearest_gene.matrix")
 
       compute_matrix( vars(args)['mode'], bigwig_files, args.output+"mapped.bed",matrix_output, vars(args))
-
-
-
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 import pandas as pd
-
+import csv
 import pybedtools
 
 import gffutils
@@ -16,10 +16,10 @@ def find_closest_genes(dictionary,output):
        print(dictionary['featureToFilter'])
        __filter_annotation(dictionary)
        sites=pybedtools.BedTool(dictionary['output']+"filtered.gtf").sort().saveas()
-    mapped=peaks.closest(sites, s=True, k=dictionary['distance']).saveas(output)
+    mapped=peaks.closest(sites, t="first").saveas(output)
 
 
-def __filter_annotation(dictionary): #XXX Here I would like to use a function from a package, if possible
+def __filter_annotation(dictionary):
    """
    filters annotation for the gene type of the interest
    """
@@ -28,10 +28,24 @@ def __filter_annotation(dictionary): #XXX Here I would like to use a function fr
             if feature.featuretype == dictionary['featureToFilter']:
                filteredAnnotation.write(str(feature)+'\n')
 
+def map_peaks_to_geneID(dictionary):
+    """
 
-def genes2Coordinates(geneids, gff_file, genome, version, fast_build = True):
-    anno = GffAnnotator(gff_file, genome, version, fast_build)
-    return(anno.geneId2Coordinates(geneids))
+    """
+
+    genes2Coordinates(dictionary['geneIDtable'], dictionary['annotation'])
+
+
+def genes2Coordinates(geneids, gff_file, fast_build = True):
+    anno = GffAnnotator(gff_file, fast_build)
+    ids = open(geneids, 'r')
+    next(ids)
+    lines = ids.readlines()
+    id_list=list()
+    for l in lines:
+        id_list.append(l.split()[0])
+    mappedAnno = anno.geneId2Coordinates(id_list)
+
 
 def parseGeneIdTable(table_file):
     return(pd.read_csv(table_file, sep ='\t'))
