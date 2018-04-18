@@ -44,7 +44,8 @@ def genes2Coordinates(geneids, gff_file, fast_build = True):
     id_list=list()
     for l in lines:
         id_list.append(l.split()[0])
-    mappedAnno = anno.geneId2Coordinates(id_list)
+    mappedAnno=anno.geneId2Coordinates(id_list) #TODO
+    
 
 
 def parseGeneIdTable(table_file):

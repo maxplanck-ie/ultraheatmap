@@ -30,7 +30,10 @@ class GffAnnotator:
             pass
 
     def __geneid2Coord(self, geneid):
-        return(self.featureDb[geneid])
+        try:
+           self.featureDb[geneid]
+        except: 
+           print ("Warning: %s not found" %geneid, file=sys.stderr)
 
     def geneId2Coordinates(self, geneids):
         return([self.__geneid2Coord(x) for x in geneids])
