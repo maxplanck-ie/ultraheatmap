@@ -1,4 +1,6 @@
 import gffutils
+from pybedtools import BedTool
+
 import os
 import sys
 
@@ -31,20 +33,27 @@ class GffAnnotator:
 
     def __geneid2Coord(self, geneid):
         try:
-           self.featureDb[geneid]
-        except: 
+           return(self.featureDb[geneid])
+        except:
            print ("Warning: %s not found" %geneid, file=sys.stderr)
 
     def geneId2Coordinates(self, geneids):
         return([self.__geneid2Coord(x) for x in geneids])
 
-    def exportBed12(self, filename, geneids):
-        with open(filename, 'w') as bed12:
-            for gid in geneids:
-                try:
-                    bed12.write(self.featureDb.bed12(gid) + os.linesep)
-                except:
-                     print ("Warning: %s not found" % gid, file=sys.stderr)
+    def __bed12(self, feature, stream):
+            try:
+                return(self.featureDb.bed12(feature))
+            except:
+                 print ("Warning: %s not found" % feature, file=sys.stderr)
+
+    def geneid2BedTool(self, geneIds, filename = None, as_pybedtool = False):
+        featureSet = self.geneId2Coordinates(geneIds)
+        if filename:
+            sys.stderr.write('Writing to file:\n' + filename)
+            with open(filename, 'w') as bed12:
+                self.__bed12(featureSet, bed12)
+
+        return(BedTool('\n'.join([self.__bed12(feature, sys.stdout) for feature in featureSet]), from_string = True))
 
     def filter(self):
         pass
