@@ -1,21 +1,22 @@
 import pandas as pd
 import csv
-import pybedtools
+from pybedtools import BedTool
 
 import gffutils
 
 from gffannotator.gffannotator import GffAnnotator
+from coordinates.mapClosestGenes import keymap_from_closest_genes
 
-def find_closest_genes(peaks_file, annotation_file, dictionary, filename = None):
+def find_closest_genes(peaks, annotation, dictionary, filename = None):
     """
     Find the closest gene using bedtools.closest
     """
-    peaks=pybedtools.BedTool(peaks_file).sort()
-    sites=pybedtools.BedTool(annotation_file).sort()
+    peaks=peaks.sort()
+    sites=annotation.sort()
     if dictionary['featureToFilter'] != None:
         print(dictionary['featureToFilter'])
         __filter_annotation(dictionary)
-        sites=pybedtools.BedTool(dictionary['output']+"filtered.gtf").sort()
+        sites=BedTool(dictionary['output']+"filtered.gtf").sort()
 
     mapped=peaks.closest(sites, t="first")
 
@@ -37,6 +38,19 @@ def map_peaks_to_geneID(dictionary):
     """
 
     """
+    #### <START>
+    ## The following set of functions produce a keymap (dictionary) mapping
+    ## each gene to associated peaks (<1:n>-mapping, n > 0)
+    ##
+    ## keymap keys:
+    ## gene keys: gff gene_id
+    ## peak keys: <chr>_<start>_<end>
+
+    peaks = BedTool(dictionary['regionsOfInterest'])
+    annotation = BedTool(dictionary['annotation'])
+    closestMapping = find_closest_genes(peaks, annotation, dictionary, None)
+    keyMap_closest = keymap_from_closest_genes(closestMapping, peaks)
+
 
     genes2Coordinates(dictionary['geneIDtable'], dictionary['annotation'])
 
