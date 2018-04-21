@@ -6,18 +6,21 @@ import gffutils
 
 from gffannotator.gffannotator import GffAnnotator
 
-def find_closest_genes(dictionary,output):
+def find_closest_genes(peaks, annotation, dictionary, filename):
     """
     Find the closest gene using bedtools.closest
     """
-    peaks=pybedtools.BedTool(dictionary['regionOfInterest']).sort().saveas()
-    sites=pybedtools.BedTool(dictionary['annotation']).sort().saveas()
+    peaks=pybedtools.BedTool(peaks).sort().saveas()
+    sites=pybedtools.BedTool(annotation).sort().saveas()
     if dictionary['featureToFilter'] != None:
-       print(dictionary['featureToFilter'])
-       __filter_annotation(dictionary)
-       sites=pybedtools.BedTool(dictionary['output']+"filtered.gtf").sort().saveas()
-    mapped=peaks.closest(sites, t="first").saveas(output)
+        print(dictionary['featureToFilter'])
+        __filter_annotation(dictionary)
+        sites=pybedtools.BedTool(dictionary['output']+"filtered.gtf").sort().saveas()
 
+    mapped=peaks.closest(sites, t="first").saveas()
+    if filename:
+        mapped.saveas(filename)
+    return(mapped)
 
 def __filter_annotation(dictionary):
    """
@@ -45,7 +48,7 @@ def genes2Coordinates(geneids, gff_file, fast_build = True):
     for l in lines:
         id_list.append(l.split()[0])
     mappedAnno=anno.geneId2Coordinates(id_list) #TODO
-    
+
 
 
 def parseGeneIdTable(table_file):
