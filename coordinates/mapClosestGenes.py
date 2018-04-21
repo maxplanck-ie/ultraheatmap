@@ -8,21 +8,20 @@ def __splitClosestMapping(closestMapping, col_split):
 
     return({'A': aInterval,'B': gff})
 
-def __keymap_from_bed_and_gff(peaks, gff):
+def __keymap_from_bed_and_gff(peaks, gff, key_definition = 'gene_id'):
     assert (len(peaks) == len(gff)), ("{} and {} are not the same size").format(len(peaks), len(gff))
 
     keyMap = defaultdict(lambda: [])
     for i in range(0,len(gff)):
-        ckey = gff[i]['gene_id']
+        ckey = gff[i][key_definition]
         cval = '_'.join(peaks[i][0:3])
         keyMap[ckey].append(cval)
 
     return(keyMap)
 
 def keymap_from_closest_genes(closestMapping, peaks):
+    assert (type(peaks) is type(pybedtools.BedTool())), ("{} is not class {}").format(type(peaks), type(pybedtools.BedTool()))
     ## should be replace by global BedTool-instance of peaksfile
-    ncol1 = len(str(peaks[0]).strip().split('\t'))
-
-    splitDict = __splitClosestMapping(closestMapping, ncol1)
+    splitDict = __splitClosestMapping(closestMapping, peaks.field_count())
     keyMap_closest = __keymap_from_bed_and_gff(splitDict['A'], splitDict['B'])
     return(keyMap_closest)
