@@ -5,7 +5,6 @@ import os
 import sys
 
 class GffAnnotator:
-
     def __init__(self, gff_file, fast = True, verbose = False):
         self.gff_file = gff_file
         print(self.gff_file)
@@ -33,15 +32,15 @@ class GffAnnotator:
 
     def __geneid2Coord(self, geneid):
         try:
-           return(self.featureDb[geneid])
+            return(self.featureDb[geneid])
         except:
-           print ("Warning: %s not found" %geneid, file=sys.stderr)
+            print ("Warning: %s not found" %geneid, file=sys.stderr)
 
-   def __bed12(self, feature, stream):
+    def __bed12(self, feature, stream):
         try:
             return(self.featureDb.bed12(feature))
         except:
-             print ("Warning: %s not found" % feature, file=sys.stderr)
+            print ("Warning: %s not found" % feature, file=sys.stderr)
 
     def geneId2Coordinates(self, geneids):
         return([self.__geneid2Coord(x) for x in geneids])
