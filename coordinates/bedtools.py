@@ -6,7 +6,7 @@ import gffutils
 
 from gffannotator.gffannotator import GffAnnotator
 
-def find_closest_genes(peaks_file, annotation_file, dictionary, filename):
+def find_closest_genes(peaks_file, annotation_file, dictionary, filename = None):
     """
     Find the closest gene using bedtools.closest
     """
@@ -18,9 +18,10 @@ def find_closest_genes(peaks_file, annotation_file, dictionary, filename):
         sites=pybedtools.BedTool(dictionary['output']+"filtered.gtf").sort()
 
     mapped=peaks.closest(sites, t="first")
+
     if filename:
         mapped.saveas(filename)
-        
+
     return(mapped)
 
 def __filter_annotation(dictionary):
