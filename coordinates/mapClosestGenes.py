@@ -19,9 +19,9 @@ def __keymap_from_bed_and_gff(peaks, gff):
 
     return(keyMap)
 
-def keymap_from_closest_genes(closestMapping, peaksfile):
+def keymap_from_closest_genes(closestMapping, peaks):
     ## should be replace by global BedTool-instance of peaksfile
-    ncol1 = len(str(pybedtools.BedTool(peaksfile)[0]).strip().split('\t'))
+    ncol1 = len(str(peaks[0]).strip().split('\t'))
 
     splitDict = __splitClosestMapping(closestMapping, ncol1)
     keyMap_closest = __keymap_from_bed_and_gff(splitDict['A'], splitDict['B'])
