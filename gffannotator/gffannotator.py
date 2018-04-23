@@ -33,12 +33,14 @@ class GffAnnotator:
 
     def __geneid2Coord(self, geneid):
         try:
+           print(self.featureDb[geneid])
            return(self.featureDb[geneid])
         except:
-           print ("Warning: %s not found" %geneid, file=sys.stderr)
+           pass
+           #print ("Warning: %s not found" %geneid, file=sys.stderr)
 
     def geneId2Coordinates(self, geneids):
-        return([self.__geneid2Coord(x) for x in geneids])
+        return([coord for coord in (self.__geneid2Coord(x) for x in geneids) if not coord is None])
 
     def __bed12(self, feature, stream):
             try:
