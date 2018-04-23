@@ -42,7 +42,7 @@ def map_peaks_to_geneID(dictionary):
     ## The following set of functions produce a keymap (dictionary) mapping
     ## each gene to associated peaks (<1:n>-mapping, n > 0)
     ##
-    ## keymap keys:
+    ## keymap keys <gene key>:[<peak keys>]
     ## gene keys: gff gene_id
     ## peak keys: <chr>_<start>_<end>
 

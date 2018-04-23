@@ -21,7 +21,6 @@ def __keymap_from_bed_and_gff(peaks, gff, key_definition = 'gene_id'):
 
 def keymap_from_closest_genes(closestMapping, peaks):
     assert (type(peaks) is type(pybedtools.BedTool())), ("{} is not class {}").format(type(peaks), type(pybedtools.BedTool()))
-    ## should be replace by global BedTool-instance of peaksfile
     splitDict = __splitClosestMapping(closestMapping, peaks.field_count())
     keyMap_closest = __keymap_from_bed_and_gff(splitDict['A'], splitDict['B'])
     return(keyMap_closest)
