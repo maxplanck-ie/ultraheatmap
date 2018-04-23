@@ -1,14 +1,13 @@
 import gffutils
 from pybedtools import BedTool
+from collections import defaultdict
 
 import os
 import sys
 
 class GffAnnotator:
-
     def __init__(self, gff_file, fast = True, verbose = False):
         self.gff_file = gff_file
-        print(self.gff_file)
         self.featureDb = None
         self.__createFeatureDatabase(fast = fast)
 
@@ -34,11 +33,9 @@ class GffAnnotator:
     def __geneid2Coord(self, geneid):
         try:
             return(self.featureDb[geneid])
-        except:           
-            print ("Warning: %s not found" %geneid, file=sys.stderr)
 
-    def geneId2Coordinates(self, geneids):
-        return([coord for coord in (self.__geneid2Coord(x) for x in geneids) if not coord is None])
+        except:
+            print ("Warning: %s not found" %geneid, file=sys.stderr)
 
     def __bed12(self, feature, stream):
         try:
@@ -46,14 +43,30 @@ class GffAnnotator:
         except:
             print ("Warning: %s not found" % feature, file=sys.stderr)
 
+
+    def geneId2Coordinates(self, geneids):
+        return([coord for coord in (self.__geneid2Coord(x) for x in geneids) if not coord is None])
+
+
     def geneid2BedTool(self, geneIds, filename = None, as_pybedtool = False):
         featureSet = self.geneId2Coordinates(geneIds)
+        featureCoords = BedTool('\n'.join([self.__bed12(feature, sys.stdout) for feature in featureSet]), from_string = True)
         if filename:
             sys.stderr.write('Writing to file:\n' + filename)
             with open(filename, 'w') as bed12:
-                self.__bed12(featureSet, bed12)
+                bed12.write(str(featureCoords))
+        return(featureCoords)
 
-        return(BedTool('\n'.join([self.__bed12(feature, sys.stdout) for feature in featureSet]), from_string = True))
+    ## keymap keys:
+    ## gene keys: gff gene_id
+    ## peak keys: <chr>_<start>_<end>
+    def geneid2keymap(self, geneids):
+        keyMap = defaultdict(lambda: None)
+        for gid in geneids:
+            feature= self.__geneid2Coord(gid)
+            if feature:
+               keyMap[gid] = "{}_{}_{}".format(feature.seqid, feature.start, feature.end)
+        return(keyMap)
 
     def filter(self):
         pass

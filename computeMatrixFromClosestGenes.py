@@ -107,10 +107,12 @@ def main():
    parser = parse_args()
    args = parser.parse_args()
    print(args)
-   #Using bedtool closest to map annotation and regions
+   #Using bedtool::closest to map annotation and regions
    map_peaks_to_geneID(vars(args))
-   #find_closest_genes(vars(args),args.output+"closestGene.bed")
+   
    #compute_matrix is run over mapped.bed and .bw files
+#  if args.mode and args.geneIDtable: TODO
+       
    if args.mode:
       bigwig_list=[str(bw) for bw in args.bigwigs.split(',')]
       bigwig_files = " ".join(bigwig_list)
