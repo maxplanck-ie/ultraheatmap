@@ -10,12 +10,11 @@ def __splitClosestMapping(closestMapping, col_split):
 
 def __keymap_from_bed_and_gff(peaks, gff, key_definition = 'gene_id'):
     assert (len(peaks) == len(gff)), ("{} and {} are not the same size").format(len(peaks), len(gff))
-
     keyMap = defaultdict(lambda: [])
-    for i in range(0,len(gff)):
-        ckey = gff[i][key_definition]
-        cval = '_'.join(peaks[i][0:3])
-        keyMap[ckey].append(cval)
+    for i in range(0,len(peaks)):
+        ckey = '_'.join(peaks[i][0:3])
+        cval = gff[i][key_definition]
+        keyMap[ckey] = cval
 
     return(keyMap)
 

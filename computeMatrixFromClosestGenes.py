@@ -107,8 +107,16 @@ def main():
    parser = parse_args()
    args = parser.parse_args()
    print(args)
+
+   ## LOAD BedTool(peaks), BedTool(annotation), pandas.Series(deseqtable)
+
    #Using bedtool closest to map annotation and regions
-   map_peaks_to_geneID(vars(args))
+
+   # TODO
+   # pandas.Series(peak2foldchange)
+   peak2foldchange = extract_ge_folchange_per_peak(peaks, annotation, deseqtable)
+
+
    #find_closest_genes(vars(args),args.output+"closestGene.bed")
    #compute_matrix is run over mapped.bed and .bw files
    if args.mode:
