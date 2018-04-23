@@ -1,5 +1,6 @@
 import gffutils
 from pybedtools import BedTool
+from collections import defaultdict
 
 import os
 import sys
@@ -53,6 +54,16 @@ class GffAnnotator:
             with open(filename, 'w') as bed12:
                 bed12.write(str(featureCoords))
         return(featureCoords)
+
+    ## keymap keys:
+    ## gene keys: gff gene_id
+    ## peak keys: <chr>_<start>_<end>
+    def geneid2keymap(self, geneids):
+        keyMap = defaultdict(lambda: None)
+        for gid in geneids:
+            feature= self.__geneid2Coord(gid)
+            keyMap[gid] = "{}_{}_{}".format(feature.seqid, feature.start, feature.end)
+        return(keyMap)
 
     def filter(self):
         pass
