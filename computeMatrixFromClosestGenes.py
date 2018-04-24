@@ -4,13 +4,16 @@ import os
 import sys
 import argparse
 import yaml
+import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
 
 #import necessary modules
+from pybedtools import BedTool
+
 from deeptoolsapi.computeMatrix import compute_matrix
 from coordinates.bedtools import find_closest_genes
-from coordinates.bedtools import map_peaks_to_geneID
+from coordinates.bedtools import extract_ge_folchange_per_peak
 
 def parse_args():
   """
@@ -90,7 +93,7 @@ def parse_args():
                       dest="featureToFilter",
                       type=str,
                       help="annotation file is filtered by gene, exon or transcriptt",
-                      default=None)
+                      default='exon')
   parser.add_argument("--geneIDs",
                       "-g",
                       dest="geneIDtable",
@@ -106,10 +109,15 @@ def main():
    """
    parser = parse_args()
    args = parser.parse_args()
-   print(args)
-   #Using bedtool::closest to map annotation and regions
-   map_peaks_to_geneID(vars(args))
-   
+  
+   ## Load BedTool(peaks), BedTool(annotation), pandas.Series(deseqtable)
+   deseqtable = pd.read_csv(args.geneIDtable,sep ='\t', squeeze = True)
+   print(deseqtable.dtypes)
+   #Using bedtool closest to map annotation and regions
+   closestMapping = find_closest_genes(args.regionOfInterest, args.annotation, args.featureToFilter,args.output)
+   # pandas.Series(peak2foldchange)
+   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, args.annotation, deseqtable,closestMapping)
+   print(peak2foldchange.dtypes)
    #compute_matrix is run over mapped.bed and .bw files
 #  if args.mode and args.geneIDtable: TODO
        
@@ -122,4 +130,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+   main()

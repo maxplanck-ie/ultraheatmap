@@ -5,37 +5,38 @@ from pybedtools import BedTool
 
 import gffutils
 
-from gffannotator.gffannotator import GffAnnotator
 from coordinates.mapClosestGenes import keymap_from_closest_genes
 
-def find_closest_genes(peaks, annotation, dictionary, filename = None):
+def find_closest_genes(peaks, annotation, featureType, outputDir, filename = None):
     """
     Find the closest gene using bedtools.closest
     """
-    peaks=peaks.sort()
-    sites=annotation.sort()
-    if dictionary['featureToFilter'] != None:
-        print(dictionary['featureToFilter'])
-        __filter_annotation(dictionary)
-        sites=BedTool(dictionary['output']+"filtered.gtf").sort()
+    Peaks = BedTool(peaks)
+    Annotation = BedTool(annotation)
 
-    mapped=peaks.closest(sites, t="first")
+    Peaks=Peaks.sort()
+    sites=Annotation.sort()
+    if featureType:
+        __filter_annotation(outputDir, featureType, annotation)
+        sites=BedTool(outputDir+"filtered.gtf").sort()
+
+    mapped=Peaks.closest(sites, t="first")
 
     if filename:
         mapped.saveas(filename)
 
     return(mapped)
 
-def __filter_annotation(dictionary):
+def __filter_annotation(outputDir, featureType, annotation):
    """
    filters annotation for the gene type of the interest
    """
-   with open(dictionary['output']+"filtered.gtf","w") as filteredAnnotation:
-        for feature in gffutils.DataIterator(dictionary['annotation']):
-            if feature.featuretype == dictionary['featureToFilter']:
+   with open(outputDir+"filtered.gtf","w") as filteredAnnotation:
+        for feature in gffutils.DataIterator(annotation):
+            if feature.featuretype == featureType:
                filteredAnnotation.write(str(feature)+'\n')
 
-def map_peaks_to_geneID(dictionary):
+def extract_ge_folchange_per_peak(peaks, annotation, deseqtable, closestMapping):
     """
 
     """
@@ -43,29 +44,34 @@ def map_peaks_to_geneID(dictionary):
     ## The following set of functions produce a keymap (dictionary) mapping
     ## each gene to associated peaks (<1:n>-mapping, n > 0)
     ##
-    ## keymap keys <gene key>:[<peak keys>] (multimap)
-    ## gene keys: gff gene_id
-    ## peak keys: <chr>_<start>_<end>
 
-    peaks = BedTool(dictionary['regionOfInterest'])
-    annotation = BedTool(dictionary['annotation'])
-    closestMapping = find_closest_genes(peaks, annotation, dictionary)
-    
-    keyMap_closest = keymap_from_closest_genes(closestMapping, peaks)
-    #XXX It seems it would save us so much time if the featuredb is built over a gff file that contains only the closest genes. Doest it make sense?
-    geneID2coordMap = genes2Coordinates(dictionary['geneIDtable'], dictionary['annotation'])
-    print(geneID2coordMap)
+    ## keymap: peak_key:gene_id
+    ## gene_id
+    ## peak_keys: <chr>_<start>_<end>
+    Peaks = BedTool(peaks)
+    Peaks=Peaks.sort()    
+    keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
+    peak2fc_table = extractFoldChange(keyMap_closest, deseqtable)
 
-def genes2Coordinates(geneids, gff_file, fast_build = True):
-    anno = GffAnnotator(gff_file, fast_build)
-    
-    ids = open(geneids, 'r')
-    next(ids)
-    lines = ids.readlines()
-    id_list=list()
-    for l in lines:       
-        id_list.append(l.split()[0])  
-    return (anno.geneid2keymap(id_list))
+    return(peak2fc_table)
+
+
+def extractFoldChange(keyMap_closest, deseqtable):
+    """
+
+    """
+    newDF = pd.DataFrame()
+    for key in keyMap_closest:
+        seq = key.split('_')[0]
+        start = key.split('_')[1]
+        end = key.split('_')[2]
+        geneExpression = deseqtable[deseqtable['GeneID'] == keyMap_closest[key]]
+        geneExpression.insert(loc =0, column = 'peak_chr', value = seq)
+        geneExpression.insert(loc =1, column = 'peak_start', value = start)
+        geneExpression.insert(loc = 2, column = 'peak_end', value = end)
+        
+        newDF = newDF.append(geneExpression,ignore_index=True)
+    return newDF
 
 
 def parseGeneIdTable(table_file):
