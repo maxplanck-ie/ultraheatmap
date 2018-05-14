@@ -1,8 +1,9 @@
 import pandas as pd
 import csv
 import os
+import sys
 from pybedtools import BedTool
-
+import numpy as np
 import gffutils
 
 from coordinates.mapClosestGenes import keymap_from_closest_genes
@@ -36,7 +37,7 @@ def __filter_annotation(outputDir, featureType, annotation):
             if feature.featuretype == featureType:
                filteredAnnotation.write(str(feature)+'\n')
 
-def extract_ge_folchange_per_peak(peaks, annotation, deseqtable, closestMapping):
+def extract_ge_folchange_per_peak(peaks, annotation, deseqtables, closestMapping,deseqfeature):
     """
 
     """
@@ -51,25 +52,31 @@ def extract_ge_folchange_per_peak(peaks, annotation, deseqtable, closestMapping)
     Peaks = BedTool(peaks)
     Peaks=Peaks.sort()    
     keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
-    peak2fc_table = extractFoldChange(keyMap_closest, deseqtable)
+    peak2fc_table = extractFoldChange(keyMap_closest, deseqtables,deseqfeature)
 
     return(peak2fc_table)
 
 
-def extractFoldChange(keyMap_closest, deseqtable):
+def extractFoldChange(keyMap_closest, deseqtables,deseqfeature):
     """
 
     """
+    geneIdtables=[]
+    for table in deseqtables:
+       geneIdtables.append(pd.read_csv(table,sep ='\t', squeeze = True))
     newDF = pd.DataFrame()
     for key in keyMap_closest:
-        seq = key.split('_')[0]
-        start = key.split('_')[1]
-        end = key.split('_')[2]
-        geneExpression = deseqtable[deseqtable['GeneID'] == keyMap_closest[key]]
+        seq,start,end = key.split('_')[:3]
+        geneExpression=pd.DataFrame()
+        for i, table in enumerate(geneIdtables):
+            colname=deseqfeature+"_deseq"+str(i)
+            if keyMap_closest[key] in table['GeneID'].values:
+               geneExpression.insert(loc = i, column = colname, value = table[table['GeneID'] == keyMap_closest[key]][deseqfeature])
+            else:
+               geneExpression.insert(loc = i, column = colname, value = np.nan)
         geneExpression.insert(loc =0, column = 'peak_chr', value = seq)
         geneExpression.insert(loc =1, column = 'peak_start', value = start)
         geneExpression.insert(loc = 2, column = 'peak_end', value = end)
-        
         newDF = newDF.append(geneExpression,ignore_index=True)
     return newDF
 

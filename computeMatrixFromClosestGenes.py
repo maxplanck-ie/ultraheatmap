@@ -94,12 +94,18 @@ def parse_args():
                       type=str,
                       help="annotation file is filtered by gene, exon or transcriptt",
                       default='exon')
-  parser.add_argument("--geneIDs",
+  parser.add_argument("--geneIDs", #comma separated gene id tables
                       "-g",
-                      dest="geneIDtable",
+                      dest="geneIDtables",
                       type=str,
                       help="gene id table",
                       default=None)
+  parser.add_argument("--deseqFeature", 
+                      dest="deseqFeature",
+                      type=str,
+                      help="feature of interest from a deseq table",
+                      default=None)
+
 
   return parser
 
@@ -109,15 +115,16 @@ def main():
    """
    parser = parse_args()
    args = parser.parse_args()
-  
-   ## Load BedTool(peaks), BedTool(annotation), pandas.Series(deseqtable)
-   deseqtable = pd.read_csv(args.geneIDtable,sep ='\t', squeeze = True)
-   print(deseqtable.dtypes)
+   geneIDtables = args.geneIDtables
+   table_list =[str(geneId) for geneId in geneIDtables.split(',')]
+   
    #Using bedtool closest to map annotation and regions
    closestMapping = find_closest_genes(args.regionOfInterest, args.annotation, args.featureToFilter,args.output)
+
    # pandas.Series(peak2foldchange)
-   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, args.annotation, deseqtable,closestMapping)
-   print(peak2foldchange.dtypes)
+   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, args.annotation, table_list, closestMapping, args.deseqFeature)
+   
+
    #compute_matrix is run over mapped.bed and .bw files
 #  if args.mode and args.geneIDtable: TODO
        
