@@ -5,6 +5,8 @@ import sys
 from pybedtools import BedTool
 import numpy as np
 import gffutils
+from deeptoolsapi.deeptoolsMatrix import Matrix
+
 
 from coordinates.mapClosestGenes import keymap_from_closest_genes
 
@@ -48,37 +50,44 @@ def extract_ge_folchange_per_peak(peaks, annotation, deseqtables, closestMapping
 
     ## keymap: peak_key:gene_id
     ## gene_id
-    ## peak_keys: <chr>_<start>_<end>
+    ## peak_keys: cols 1-6 from bed format (1-based index)
     Peaks = BedTool(peaks)
-    Peaks=Peaks.sort()    
+    Peaks=Peaks.sort()
     keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
     peak2fc_table = extractFoldChange(keyMap_closest, deseqtables,deseqfeature)
 
     return(peak2fc_table)
 
+def __getValuesFromDEseqTable(geneid, deseqtable, deseqfeature):
+    v = []
+    for gid in geneid:
+        if gid in deseqtable['GeneID'].values:
+            x = float(deseqtable[deseqtable.GeneID == gid][deseqfeature])
+            if np.isnan(x):
+                x = np.nan
+            v += [ x ]
+        else:
+            v += [ np.nan ]
+    return v
 
-def extractFoldChange(keyMap_closest, deseqtables,deseqfeature):
+def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
     """
 
     """
+    matrixDict = {}
     geneIdtables=[]
     for table in deseqtables:
        geneIdtables.append(pd.read_csv(table,sep ='\t', squeeze = True))
-    newDF = pd.DataFrame()
-    for key in keyMap_closest:
-        seq,start,end = key.split('_')[:3]
-        geneExpression=pd.DataFrame()
-        for i, table in enumerate(geneIdtables):
-            colname=deseqfeature+"_deseq"+str(i)
-            if keyMap_closest[key] in table['GeneID'].values:
-               geneExpression.insert(loc = i, column = colname, value = table[table['GeneID'] == keyMap_closest[key]][deseqfeature])
-            else:
-               geneExpression.insert(loc = i, column = colname, value = np.nan)
-        geneExpression.insert(loc =0, column = 'peak_chr', value = seq)
-        geneExpression.insert(loc =1, column = 'peak_start', value = start)
-        geneExpression.insert(loc = 2, column = 'peak_end', value = end)
-        newDF = newDF.append(geneExpression,ignore_index=True)
-    return newDF
+    regions = [ key.split(';') for key in keyMap_closest ]
+
+    valuesTab = np.empty((len(regions), 1), dtype=float)
+    for i, table in enumerate(geneIdtables):
+        values = __getValuesFromDEseqTable([keyMap_closest[key] for key in keyMap_closest], table, deseqfeature)
+        valuesTab = np.concatenate((valuesTab, np.asmatrix(values).transpose()),axis = 1)
+
+    return Matrix(regions = regions, matrix = valuesTab[:,1:], group_boundaries = [0,len(regions)], \
+        sample_boundaries =  [x for x in range(0, len(deseqtables) + 1, 1)])
+
 
 
 def parseGeneIdTable(table_file):
