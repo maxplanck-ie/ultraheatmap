@@ -30,7 +30,7 @@ class Matrix:
         assert matrix.shape[1] == sample_boundaries[-1], \
             "col max do not match matrix shape"
         assert matrix.shape[0] == len(regions)
-        
+
         self.regions = regions
         self.matrix = matrix
         self.group_boundaries = group_boundaries # index vector
@@ -53,7 +53,7 @@ class Matrix:
             assert len(sample_labels) == len(sample_boundaries) - 1, \
                 "number of sample labels does not match number of samples"
             self.sample_labels = sample_labels
-        
+
 
     def get_matrix(self, group, sample):
         """
@@ -308,8 +308,8 @@ class Matrix:
             # keeping nans while converting them to strings
             if not np.ma.is_masked(score_list[idx]):
                 np.float(score_list[idx])
-            matrix_values = "\t".join(np.char.mod('%f', self.matrix[idx, :])) #TODO throws exception becasue of the input shape!
-            starts = ["{0}".format(x[0]) for x in region[1]]
+            matrix_values = "\t".join(np.char.mod('%f', self.matrix[idx, :]))
+            starts = ["{0}".format(x[0]) for x in region[1]] #TODO Redefine regions. What does it expect?
             ends = ["{0}".format(x[1]) for x in region[1]]
             starts = ",".join(starts)
             ends = ",".join(ends)
@@ -324,4 +324,3 @@ class Matrix:
                         region[4],
                         matrix_values)))
         fh.close()
-
