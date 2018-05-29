@@ -1,6 +1,25 @@
 import numpy as np
+import gzip
+import sys
 ## full class copied from deeptools
 # https://github.com/deeptools/deepTools/blob/master/deeptools/heatmapper.py
+def toBytes(s):
+        """
+        Like toString, but for functions requiring bytes in python3
+        """
+        if sys.version_info[0] == 2:
+            return s
+        if isinstance(s, bytes):
+            return s
+        if isinstance(s, str):
+            return bytes(s, 'ascii')
+        if isinstance(s, list):
+            return [toBytes(x) for x in s]
+        return s
+
+
+
+
 class Matrix:
 
     def __init__(self, regions, matrix, group_boundaries, sample_boundaries,
@@ -10,7 +29,8 @@ class Matrix:
             "row max do not match matrix shape"
         assert matrix.shape[1] == sample_boundaries[-1], \
             "col max do not match matrix shape"
-
+        assert matrix.shape[0] == len(regions)
+        
         self.regions = regions
         self.matrix = matrix
         self.group_boundaries = group_boundaries # index vector
@@ -33,6 +53,7 @@ class Matrix:
             assert len(sample_labels) == len(sample_boundaries) - 1, \
                 "number of sample labels does not match number of samples"
             self.sample_labels = sample_labels
+        
 
     def get_matrix(self, group, sample):
         """
@@ -243,3 +264,64 @@ class Matrix:
             num_nan = len(np.flatnonzero(np.isnan(self.matrix.flatten())))
             raise ValueError("matrix only contains nans "
 "(total nans: {})".format(num_nan))
+
+
+    def save_matrix(self, file_name):
+        """
+        saves the data required to reconstruct the matrix
+        the format is:
+        A header containing the parameters used to create the matrix
+        encoded as:
+        @key:value\tkey2:value2 etc...
+        The rest of the file has the same first 5 columns of a
+        BED file: chromosome name, start, end, name, score and strand,
+        all separated by tabs. After the fifth column the matrix
+        values are appended separated by tabs.
+        Groups are separated by adding a line starting with a hash (#)
+        and followed by the group name.
+        The file is gzipped.
+        """
+        import json
+        parameters=dict()
+        parameters['sample_labels'] = self.sample_labels
+        parameters['group_labels'] = self.group_labels
+        parameters['sample_boundaries'] = self.sample_boundaries
+        parameters['group_boundaries'] = self.group_boundaries
+        print(parameters.items())
+        # Redo the parameters, ensuring things related to ticks and labels are repeated appropriately
+        nSamples = len(self.sample_labels)
+        h = dict()
+        for k, v in parameters.items():
+            if type(v) is list and len(v) == 0:
+                v = None
+#            if k in self.special_params and type(v) is not list: #XXX special params??
+#                v = [v] * nSamples
+#                if len(v) == 0:
+#                    v = [None] * nSamples
+            h[k] = v
+        fh = gzip.open(file_name, 'wb')
+        params_str = json.dumps(h, separators=(',', ':'))
+        fh.write(toBytes("@" + params_str + "\n"))
+        score_list = np.ma.masked_invalid(np.mean(self.matrix, axis=1))
+        for idx, region in enumerate(self.regions):
+            # join np_array values
+            # keeping nans while converting them to strings
+            if not np.ma.is_masked(score_list[idx]):
+                np.float(score_list[idx])
+            matrix_values = "\t".join(np.char.mod('%f', self.matrix[idx, :])) #TODO throws exception becasue of the input shape!
+            starts = ["{0}".format(x[0]) for x in region[1]]
+            ends = ["{0}".format(x[1]) for x in region[1]]
+            starts = ",".join(starts)
+            ends = ",".join(ends)
+            # BEDish format (we don't currently store the score)
+            fh.write(
+                toBytes('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\n'.format(
+                        region[0],
+                        starts,
+                        ends,
+                        region[2],
+                        region[5],
+                        region[4],
+                        matrix_values)))
+        fh.close()
+

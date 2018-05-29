@@ -3,7 +3,8 @@ from collections import defaultdict
 
 def __splitClosestMapping(closestMapping, col_split):
     aInterval = [str(x).split('\t')[0:col_split] for x in closestMapping]
-    bInterval = [str(x).split('\t')[col_split:] for x in closestMapping]
+    
+    bInterval = [str(x).split('\t')[col_split:] for x in closestMapping] #XXX what if there is no closest gene for a peak? the current code crashes if there is such a peak
     gff = [pybedtools.create_interval_from_list(i) for i in bInterval]
 
     return({'A': aInterval,'B': gff})
