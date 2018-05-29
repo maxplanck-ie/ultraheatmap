@@ -77,12 +77,13 @@ def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
 
     regions = [ key.split(';') for key in keyMap_closest ]
 
-    valuesTab = np.empty((len(regions), 1), dtype=float)
+    valuesTab = np.empty((len(regions), len(deseqtables)), dtype=float)
     for i, table in enumerate(geneIdtables):
         values = __getValuesFromDEseqTable([keyMap_closest[key] for key in keyMap_closest], table, deseqfeature)
-        valuesTab = np.concatenate((valuesTab, np.asmatrix(values).transpose()),axis = 1)
+        valuesTab[:,i] = values
 
-    return (Matrix(regions = regions, matrix = valuesTab[:,1:], group_boundaries = [0,len(regions)], \
+
+    return (Matrix(regions = regions, matrix = valuesTab, group_boundaries = [0,len(regions)], \
     sample_boundaries =  [x for x in range(0, len(deseqtables) + 1, 1)]))
 
 
