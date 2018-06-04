@@ -287,7 +287,7 @@ class Matrix:
         parameters['group_labels'] = self.group_labels
         parameters['sample_boundaries'] = self.sample_boundaries
         parameters['group_boundaries'] = self.group_boundaries
-        print(parameters.items())
+        
         # Redo the parameters, ensuring things related to ticks and labels are repeated appropriately
         nSamples = len(self.sample_labels)
         h = dict()

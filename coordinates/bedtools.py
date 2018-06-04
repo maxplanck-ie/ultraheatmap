@@ -68,6 +68,21 @@ def __getValuesFromDEseqTable(geneid, deseqtable, deseqfeature):
             v += [ np.nan ]
     return v
 
+def __parseRegions(keyMap_closest):
+    """
+
+    """
+    regions =[]
+    for key in keyMap_closest:
+        region = key.split(';')
+        chrom, start, end, name, score, strand = region[0:6]
+        starts = start.split(",")
+        ends = end.split(",")
+        regs = [(int(x), int(y)) for x, y in zip(starts, ends)]
+        regions.append([chrom, regs, name, len(keyMap_closest), strand, score]) #XXX max_group_bound? Ihave set it the number of line since i am thinking that we always have one bed file at the time. Am I right?
+    return regions
+
+
 def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
     """
 
@@ -75,15 +90,13 @@ def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
     matrixDict = {}
     geneIdtables =[parseGeneIdTable(table) for table in deseqtables]
 
-    regions = [ key.split(';') for key in keyMap_closest ]
-
-    valuesTab = np.empty((len(regions), len(deseqtables)), dtype=float)
+    valuesTab = np.empty((len(keyMap_closest), len(deseqtables)), dtype=float)
     for i, table in enumerate(geneIdtables):
         values = __getValuesFromDEseqTable([keyMap_closest[key] for key in keyMap_closest], table, deseqfeature)
         valuesTab[:,i] = values
 
 
-    return (Matrix(regions = regions, matrix = valuesTab, group_boundaries = [0,len(regions)], \
+    return (Matrix(regions = __parseRegions(keyMap_closest), matrix = valuesTab, group_boundaries = [0,len(keyMap_closest)], \
     sample_boundaries =  [x for x in range(0, len(deseqtables) + 1, 1)]))
 
 
