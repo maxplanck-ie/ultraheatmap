@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
 from bashwrapper.bashwrapper import Bash
 from deeptoolsapi.plotHeatMap import plot_heatmap
-
+from deeptools.heatmapper import heatmapper as dh #TODO
 #Loading deeptools:
 deeptools_module_load="module load deeptools"
 def __computeScaledRegions(bigwigs, regions, matrix, configfile):
@@ -21,9 +21,8 @@ def __computeScaledRegions(bigwigs, regions, matrix, configfile):
                 unscaled3 = str(configfile['unscaled_str']),
                 metagene = opt_metagene,
                 outputmatrix = matrix)
-    print(cmd)
     return(cmd)
-
+#     dh.computeMatrix()
 def __computeReferencePoint(bigwigs, regions, matrix, configfile):
     opt_metagene=""
     if configfile['metagene']:
@@ -35,10 +34,9 @@ def __computeReferencePoint(bigwigs, regions, matrix, configfile):
                 flank = str(configfile['flanking_str']),
                 metagene = opt_metagene,
                 outputmatrix = matrix)
-    print(cmd)
     return(cmd)
 
-#A matrix is computed using deeptools/computeMatrix
+#first a matrix is computed using deeptools/computeMatrix, then deeptools/cbind is used to merge the generated matrix with the closest-genes matrix if the closest-genes matrix is provided.
 def compute_matrix(mode, bw, bed, matrix, configfile):
    """
    computing the corresponding matrix using deeptools/computeMatrix
@@ -46,14 +44,16 @@ def compute_matrix(mode, bw, bed, matrix, configfile):
    computeMatrix_cmd = [deeptools_module_load]
    if mode == "scale-regions":
        computeMatrix_cmd.append( __computeScaledRegions(bw, bed, matrix, configfile) )
+#       __computeScaledRegions(bw, bed, matrix, configfile) 
    else:
        assert mode == "reference-point"
        computeMatrix_cmd.append( __computeReferencePoint(bw, bed, matrix, configfile) )
 
-   print("command "+str(computeMatrix_cmd))
+   
    cmd=";".join(computeMatrix_cmd)
-   print("cmd\n"+str(cmd))
+#  print("cmd\n"+str(cmd))
    computeMatrix_bash = Bash(cmd)
+
 
 def sortbyreference(regions,refIndex,bigwig_list,configfile):
     indexList=[int(index) for index in refIndex.split(',')]
@@ -71,10 +71,20 @@ def sortbyreference(regions,refIndex,bigwig_list,configfile):
     return orderedbed
 
 
+def __cbind_matrix(matrix1, matrix2):
+    cbind_cmd = [deeptools_module_load]
+    cbind_cmd.append("computeMatrixOperations cbind -m {matrix1} {matrix2} -o {output}".format(
+          matrix1 = matrix1,
+          matrix2 = matrix2,
+          output = "joined_matrix.gz"))
+    cmd=";".join(cbind_cmd)
+    subprocess.run(cmd, shell=True)
+
+
 def computefinalmatrix(regions, bigwigs, configfile):
     matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
     if configfile['extramatrix']:
-       print("An extra matrix has been provided to cbind") #TODO
+       __cbind_matrix(matrix_output,configfile['extramatrix'])
 
 
