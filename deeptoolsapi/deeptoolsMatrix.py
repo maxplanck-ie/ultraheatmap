@@ -287,18 +287,19 @@ class Matrix:
         parameters['group_labels'] = self.group_labels
         parameters['sample_boundaries'] = self.sample_boundaries
         parameters['group_boundaries'] = self.group_boundaries
-        
-        # Redo the parameters, ensuring things related to ticks and labels are repeated appropriately
+        special_params = set(['unscaled 5 prime', 'unscaled 3 prime', 'body', 'downstream', 'upstream', 'ref point', 'bin size'])
+
         nSamples = len(self.sample_labels)
         h = dict()
         for k, v in parameters.items():
             if type(v) is list and len(v) == 0:
                 v = None
-#            if k in self.special_params and type(v) is not list: #XXX special params??
-#                v = [v] * nSamples
-#                if len(v) == 0:
-#                    v = [None] * nSamples
             h[k] = v
+        for k in special_params:
+            v = [None] * nSamples
+            h[k] = v
+
+        print(h)
         fh = gzip.open(file_name, 'wb')
         params_str = json.dumps(h, separators=(',', ':'))
         fh.write(toBytes("@" + params_str + "\n"))
@@ -309,7 +310,7 @@ class Matrix:
             if not np.ma.is_masked(score_list[idx]):
                 np.float(score_list[idx])
             matrix_values = "\t".join(np.char.mod('%f', self.matrix[idx, :]))
-            starts = ["{0}".format(x[0]) for x in region[1]] #TODO Redefine regions. What does it expect?
+            starts = ["{0}".format(x[0]) for x in region[1]]
             ends = ["{0}".format(x[1]) for x in region[1]]
             starts = ",".join(starts)
             ends = ",".join(ends)

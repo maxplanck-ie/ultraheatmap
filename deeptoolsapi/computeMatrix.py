@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
 from bashwrapper.bashwrapper import Bash
 from deeptoolsapi.plotHeatMap import plot_heatmap
-from deeptools.heatmapper import heatmapper as dh #TODO
+#from deeptools.heatmapper import heatmapper as dh #TODO
 #Loading deeptools:
 deeptools_module_load="module load deeptools"
 def __computeScaledRegions(bigwigs, regions, matrix, configfile):
@@ -71,12 +71,12 @@ def sortbyreference(regions,refIndex,bigwig_list,configfile):
     return orderedbed
 
 
-def __cbind_matrix(matrix1, matrix2):
+def __cbind_matrix(matrix1, matrix2, output_dir):
     cbind_cmd = [deeptools_module_load]
     cbind_cmd.append("computeMatrixOperations cbind -m {matrix1} {matrix2} -o {output}".format(
           matrix1 = matrix1,
           matrix2 = matrix2,
-          output = "joined_matrix.gz"))
+          output = output_dir+"joined_matrix.gz"))
     cmd=";".join(cbind_cmd)
     subprocess.run(cmd, shell=True)
 
@@ -85,6 +85,6 @@ def computefinalmatrix(regions, bigwigs, configfile):
     matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
     if configfile['extramatrix']:
-       __cbind_matrix(matrix_output,configfile['extramatrix'])
+       __cbind_matrix(matrix_output,configfile['extramatrix'],configfile['outputDir'])
 
 
