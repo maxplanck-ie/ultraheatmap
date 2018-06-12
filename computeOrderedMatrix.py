@@ -153,6 +153,7 @@ def main():
    if args.refIndex:
        orderedbed = cm.sortbyreference(regions,args.refIndex,bigwig_list,configfile)
        regions = orderedbed
+       print(regions)
        assert regions == os.path.join(output_dir,"ordered.bed")
 
    #4.Built matrices over all the samples, add closest gene matrix if provided

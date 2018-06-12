@@ -44,12 +44,12 @@ def compute_matrix(mode, bw, bed, matrix, configfile):
    computeMatrix_cmd = [deeptools_module_load]
    if mode == "scale-regions":
        computeMatrix_cmd.append( __computeScaledRegions(bw, bed, matrix, configfile) )
-#       __computeScaledRegions(bw, bed, matrix, configfile) 
+#       __computeScaledRegions(bw, bed, matrix, configfile)
    else:
        assert mode == "reference-point"
        computeMatrix_cmd.append( __computeReferencePoint(bw, bed, matrix, configfile) )
 
-   
+
    cmd=";".join(computeMatrix_cmd)
 #  print("cmd\n"+str(cmd))
    computeMatrix_bash = Bash(cmd)
@@ -80,11 +80,13 @@ def __cbind_matrix(matrix1, matrix2, output_dir):
     cmd=";".join(cbind_cmd)
     subprocess.run(cmd, shell=True)
 
+def reorder_matrix(matrix,configfile):
+    orderedbed=os.path.join(configfile['outputDir'],"ordered.bed")
 
 def computefinalmatrix(regions, bigwigs, configfile):
     matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
-    if configfile['extramatrix']:
+    if configfile['extramatrix']: #TODO cases ot consider: 1. if orderedbed 2. else
+       matrix2 = read_matrix_file(configfile['extramatrix'])
+       reorder_matrix (matrix2,configfile)
        __cbind_matrix(matrix_output,configfile['extramatrix'],configfile['outputDir'])
-
-
