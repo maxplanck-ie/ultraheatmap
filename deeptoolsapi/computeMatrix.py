@@ -100,7 +100,7 @@ def reorder_matrix(matrix,configfile):
          ii_match= match(order["name"], list(regions)[2])
          for index in ii_match:
             ordered_regions.append(matrix.regions[index])
-            ordered_matrix.append(matrix.matrix[index, :]) #TODO there is a bug here!
+            ordered_matrix.append(matrix.matrix[index,:]) #TODO there is a bug here!
          matrix.regions = ordered_regions
          matrix.matrix = ordered_matrix
     else:
