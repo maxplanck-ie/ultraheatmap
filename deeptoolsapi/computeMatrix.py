@@ -2,10 +2,13 @@ import subprocess
 import shlex
 import sys
 import os
+import pandas as pd
+import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
 from bashwrapper.bashwrapper import Bash
 from deeptoolsapi.plotHeatMap import plot_heatmap
+from deeptoolsapi.deeptoolsMatrix import read_matrix_file
 #from deeptools.heatmapper import heatmapper as dh #TODO
 #Loading deeptools:
 deeptools_module_load="module load deeptools"
@@ -82,11 +85,31 @@ def __cbind_matrix(matrix1, matrix2, output_dir):
 
 def reorder_matrix(matrix,configfile):
     orderedbed=os.path.join(configfile['outputDir'],"ordered.bed")
-
+    if os.path.isfile(orderedbed):
+         matrix.group_boundaries = [0]
+         ordered_regions = []
+         ordered_matrix = []
+         regions=zip(*matrix.regions)
+         order = pd.read_csv(orderedbed, sep ='\t')
+         from itertools import groupby, accumulate
+         groups_freq = {key:len(list(group)) for key, group in groupby(order["deepTools_group"])}
+         matrix.group_labels = list(groups_freq.keys())
+         freq = list(accumulate(groups_freq.values()))
+         matrix.group_boundaries.extend(freq)
+         match = lambda a, b: [ b.index(x) if x in b else None for x in a ]
+         ii_match= match(order["name"], list(regions)[2])
+         for index in ii_match:
+            ordered_regions.append(matrix.regions[index])
+            ordered_matrix.append(matrix.matrix[index, :]) #TODO there is a bug here!
+         matrix.regions = ordered_regions
+         matrix.matrix = ordered_matrix
+    else:
+        print("else")
+    return matrix.save_matrix(os.path.join(configfile['outputDir'], "OrderedclosestGene.matrix.gz"))
 def computefinalmatrix(regions, bigwigs, configfile):
-    matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix")
+    matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix.gz")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
     if configfile['extramatrix']: #TODO cases ot consider: 1. if orderedbed 2. else
        matrix2 = read_matrix_file(configfile['extramatrix'])
-       reorder_matrix (matrix2,configfile)
-       __cbind_matrix(matrix_output,configfile['extramatrix'],configfile['outputDir'])
+       additional_matrix = reorder_matrix (matrix2,configfile)
+       __cbind_matrix(matrix_output,additional_matrix, configfile['outputDir'])
