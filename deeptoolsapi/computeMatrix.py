@@ -104,13 +104,14 @@ def reorder_matrix(matrix,configfile):
          ordered_regions = [ matrix.regions[i] for i in ii_match ]
          ordered_matrix = matrix.matrix[ii_match, :]
 
-
          matrix.regions = ordered_regions
          matrix.matrix = ordered_matrix
     else:
          print("else")
 
-    return matrix.save_matrix(os.path.join(configfile['outputDir'], "OrderedclosestGene.matrix.gz"))
+    outfile = os.path.join(configfile['outputDir'], "OrderedclosestGene.matrix.gz")
+    matrix.save_matrix(outfile)
+    return outfile
 
 
 def computefinalmatrix(regions, bigwigs, configfile):
