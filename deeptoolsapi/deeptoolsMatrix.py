@@ -83,8 +83,8 @@ def read_matrix_file(matrix_file):
             if len(v) == 0:
                 v = [None] * nSamples
         h[k] = v
-    parameters = h
-    return matrix
+    print("h: "+ str(h))
+    return matrix, h
 
 
 class Matrix:
@@ -334,7 +334,7 @@ class Matrix:
 
 
 
-    def save_matrix(self, file_name):
+    def save_matrix(self, file_name, mode = 'scale-regions', ref_point = None):
         """
         saves the data required to reconstruct the matrix
         the format is:
@@ -355,16 +355,18 @@ class Matrix:
         parameters['group_labels'] = self.group_labels
         parameters['sample_boundaries'] = self.sample_boundaries
         parameters['group_boundaries'] = self.group_boundaries
-        special_params = set(['unscaled 5 prime', 'unscaled 3 prime', 'body', 'downstream', 'upstream', 'ref point', 'bin size'])
-
+#        special_params = set(['unscaled 5 prime', 'unscaled 3 prime', 'body', 'downstream', 'upstream', 'ref point', 'bin size'])
+        special_params = {'unscaled 5 prime':0, 'unscaled 3 prime':0, 'body':1000, 'downstream':0, 'upstream':0, 'ref point':None, 'bin size':10}
+        if mode == 'reference-point':
+            special_params['ref point'] = ref_point
         nSamples = len(self.sample_labels)
         h = dict()
         for k, v in parameters.items():
             if type(v) is list and len(v) == 0:
                 v = None
             h[k] = v
-        for k in special_params:
-            v = [None] * nSamples
+        for k , v in special_params.items():
+            v = [v] * nSamples
             h[k] = v
 
         print(h)

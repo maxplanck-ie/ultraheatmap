@@ -107,9 +107,10 @@ def reorder_matrix(matrix,configfile):
          matrix.regions = ordered_regions
          matrix.matrix = ordered_matrix
     else:
-         print("else")
+        #update group_label
+        matrix.group_labels = ["genes"]
 
-    outfile = os.path.join(configfile['outputDir'], "OrderedclosestGene.matrix.gz")
+    outfile = os.path.join(configfile['outputDir'], "UpdatedclosestGene.matrix.gz")
     matrix.save_matrix(outfile)
     return outfile
 
@@ -117,7 +118,7 @@ def reorder_matrix(matrix,configfile):
 def computefinalmatrix(regions, bigwigs, configfile):
     matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix.gz")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
-    if configfile['extramatrix']: #TODO cases ot consider: 1. if orderedbed 2. else
-       matrix2 = read_matrix_file(configfile['extramatrix'])
+    if configfile['extramatrix']:
+       matrix2,params2 = read_matrix_file(configfile['extramatrix'])
        additional_matrix = reorder_matrix (matrix2,configfile)
        __cbind_matrix(matrix_output,additional_matrix, configfile['outputDir'])

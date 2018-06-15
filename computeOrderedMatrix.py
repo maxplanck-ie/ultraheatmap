@@ -136,7 +136,7 @@ def main():
    # modify config file if needed
    configfile=defaultconfigfile
    add_diff(vars(args),configfile)
-   
+
    if args.userconfig:
       configfile= merge_dictionaries(configfile, args.userconfig)
    with open(os.path.join(output_dir,'configfile.yaml'), 'w') as c:
@@ -153,7 +153,6 @@ def main():
    if args.refIndex:
        orderedbed = cm.sortbyreference(regions,args.refIndex,bigwig_list,configfile)
        regions = orderedbed
-       print(regions)
        assert regions == os.path.join(output_dir,"ordered.bed")
 
    #4.Built matrices over all the samples, add closest gene matrix if provided
