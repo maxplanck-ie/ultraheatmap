@@ -96,16 +96,23 @@ def reorder_matrix(matrix,configfile):
          matrix.group_labels = list(groups_freq.keys())
          freq = list(accumulate(groups_freq.values()))
          matrix.group_boundaries.extend(freq)
+
          match = lambda a, b: [ b.index(x) if x in b else None for x in a ]
+
          ii_match= match(order["name"], list(regions)[2])
-         for index in ii_match:
-            ordered_regions.append(matrix.regions[index])
-            ordered_matrix.append(matrix.matrix[index,:]) #TODO there is a bug here!
+
+         ordered_regions = [ matrix.regions[i] for i in ii_match ]
+         ordered_matrix = matrix.matrix[ii_match, :]
+
+
          matrix.regions = ordered_regions
          matrix.matrix = ordered_matrix
     else:
-        print("else")
+         print("else")
+
     return matrix.save_matrix(os.path.join(configfile['outputDir'], "OrderedclosestGene.matrix.gz"))
+
+
 def computefinalmatrix(regions, bigwigs, configfile):
     matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix.gz")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
