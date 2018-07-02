@@ -9,3 +9,4 @@ data/
 .ipynb_*
 *.ipynb
 sandbox
+test_*
