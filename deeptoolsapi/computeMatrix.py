@@ -2,11 +2,14 @@ import subprocess
 import shlex
 import sys
 import os
+import pandas as pd
+import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
 from bashwrapper.bashwrapper import Bash
 from deeptoolsapi.plotHeatMap import plot_heatmap
-from deeptools.heatmapper import heatmapper as dh #TODO
+from deeptoolsapi.deeptoolsMatrix import read_matrix_file
+#from deeptools.heatmapper import heatmapper as dh #TODO
 #Loading deeptools:
 deeptools_module_load="module load deeptools"
 def __computeScaledRegions(bigwigs, regions, matrix, configfile):
@@ -44,12 +47,12 @@ def compute_matrix(mode, bw, bed, matrix, configfile):
    computeMatrix_cmd = [deeptools_module_load]
    if mode == "scale-regions":
        computeMatrix_cmd.append( __computeScaledRegions(bw, bed, matrix, configfile) )
-#       __computeScaledRegions(bw, bed, matrix, configfile) 
+#       __computeScaledRegions(bw, bed, matrix, configfile)
    else:
        assert mode == "reference-point"
        computeMatrix_cmd.append( __computeReferencePoint(bw, bed, matrix, configfile) )
 
-   
+
    cmd=";".join(computeMatrix_cmd)
 #  print("cmd\n"+str(cmd))
    computeMatrix_bash = Bash(cmd)
@@ -71,20 +74,51 @@ def sortbyreference(regions,refIndex,bigwig_list,configfile):
     return orderedbed
 
 
-def __cbind_matrix(matrix1, matrix2):
+def __cbind_matrix(matrix1, matrix2, output_dir):
     cbind_cmd = [deeptools_module_load]
     cbind_cmd.append("computeMatrixOperations cbind -m {matrix1} {matrix2} -o {output}".format(
           matrix1 = matrix1,
           matrix2 = matrix2,
-          output = "joined_matrix.gz"))
+          output = output_dir+"joined_matrix.gz"))
     cmd=";".join(cbind_cmd)
     subprocess.run(cmd, shell=True)
 
+def reorder_matrix(matrix,configfile):
+    orderedbed=os.path.join(configfile['outputDir'],"ordered.bed")
+    if os.path.isfile(orderedbed):
+         matrix.group_boundaries = [0]
+         ordered_regions = []
+         ordered_matrix = []
+         regions=zip(*matrix.regions)
+         order = pd.read_csv(orderedbed, sep ='\t')
+         from itertools import groupby, accumulate
+         groups_freq = {key:len(list(group)) for key, group in groupby(order["deepTools_group"])}
+         matrix.group_labels = list(groups_freq.keys())
+         freq = list(accumulate(groups_freq.values()))
+         matrix.group_boundaries.extend(freq)
+
+         match = lambda a, b: [ b.index(x) if x in b else None for x in a ]
+
+         ii_match= match(order["name"], list(regions)[2])
+
+         ordered_regions = [ matrix.regions[i] for i in ii_match ]
+         ordered_matrix = matrix.matrix[ii_match, :]
+
+         matrix.regions = ordered_regions
+         matrix.matrix = ordered_matrix
+    else:
+        #update group_label
+        matrix.group_labels = ["genes"]
+
+    outfile = os.path.join(configfile['outputDir'], "UpdatedclosestGene.matrix.gz")
+    matrix.save_matrix(outfile)
+    return outfile
+
 
 def computefinalmatrix(regions, bigwigs, configfile):
-    matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix")
+    matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix.gz")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
     if configfile['extramatrix']:
-       __cbind_matrix(matrix_output,configfile['extramatrix'])
-
-
+       matrix2,params2 = read_matrix_file(configfile['extramatrix'])
+       additional_matrix = reorder_matrix (matrix2,configfile)
+       __cbind_matrix(matrix_output,additional_matrix, configfile['outputDir'])

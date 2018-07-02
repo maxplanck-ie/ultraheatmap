@@ -10,7 +10,7 @@ from deeptoolsapi.deeptoolsMatrix import Matrix
 
 from coordinates.mapClosestGenes import keymap_from_closest_genes
 
-def find_closest_genes(peaks, annotation, featureType, outputDir, filename = "test_mapped"):
+def find_closest_genes(peaks, annotation, featureType, outputDir, filename = None):
     """
     Find the closest gene using bedtools.closest
     """
@@ -39,7 +39,7 @@ def __filter_annotation(outputDir, featureType, annotation):
             if feature.featuretype == featureType:
                filteredAnnotation.write(str(feature)+'\n')
 
-def extract_ge_folchange_per_peak(peaks, annotation, deseqtables, closestMapping,deseqfeature):
+def extract_ge_folchange_per_peak(peaks, deseqtables, closestMapping,deseqfeature):
     """
 
     """
@@ -76,10 +76,10 @@ def __parseRegions(keyMap_closest):
     for key in keyMap_closest:
         region = key.split(';')
         chrom, start, end, name, score, strand = region[0:6]
-        starts = start.split(",")
+        starts = start.split(",") ##XXX is it more than one?
         ends = end.split(",")
         regs = [(int(x), int(y)) for x, y in zip(starts, ends)]
-        regions.append([chrom, regs, name, len(keyMap_closest), strand, score]) #XXX max_group_bound? Ihave set it the number of line since i am thinking that we always have one bed file at the time. Am I right?
+        regions.append([chrom, regs, name, len(keyMap_closest), strand, score]) #XXX max_group_bound? I have set it the number of line since i am thinking that we always have one bed file at the time. Am I right?
     return regions
 
 

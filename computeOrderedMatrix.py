@@ -5,7 +5,7 @@ import sys
 import argparse
 import yaml
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
 
 #import necessary modules
@@ -136,7 +136,7 @@ def main():
    # modify config file if needed
    configfile=defaultconfigfile
    add_diff(vars(args),configfile)
-   
+
    if args.userconfig:
       configfile= merge_dictionaries(configfile, args.userconfig)
    with open(os.path.join(output_dir,'configfile.yaml'), 'w') as c:

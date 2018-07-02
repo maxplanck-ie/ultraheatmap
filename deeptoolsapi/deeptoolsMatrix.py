@@ -17,7 +17,74 @@ def toBytes(s):
             return [toBytes(x) for x in s]
         return s
 
+def toString(s):
+    """
+    This takes care of python2/3 differences
+    """
+    if isinstance(s, str):
+        return s
+    if isinstance(s, bytes):
+        if sys.version_info[0] == 2:
+            return str(s)
+        return s.decode('ascii')
+    if isinstance(s, list):
+        return [toString(x) for x in s]
+    return s
 
+def read_matrix_file(matrix_file):
+    # reads a bed file containing the position
+    # of genomic intervals
+    # In case a hash sign '#' is found in the
+    # file, this is considered as a delimiter
+    # to split the heatmap into groups
+    parameters = dict()
+    special_params = set(['unscaled 5 prime', 'unscaled 3 prime', 'body', 'downstream', 'upstream', 'ref point', 'bin size'])
+    import json
+    regions = []
+    matrix_rows = []
+    current_group_index = 0
+    max_group_bound = None
+    fh = gzip.open(matrix_file)
+
+    for line in fh:
+        line = toString(line).strip()
+        # read the header file containing the parameters
+        # used
+        if line.startswith("@"):
+            # the parameters used are saved using
+            # json
+            parameters = json.loads(line[1:].strip())
+            max_group_bound = parameters['group_boundaries'][1]
+            continue
+            # split the line into bed interval and matrix values
+        region = line.split('\t')
+        chrom, start, end, name, score, strand = region[0:6]
+        matrix_row = np.ma.masked_invalid(np.fromiter(region[6:], np.float))
+        matrix_rows.append(matrix_row)
+        starts = start.split(",")
+        ends = end.split(",")
+        regs = [(int(x), int(y)) for x, y in zip(starts, ends)]
+        # get the group index
+        if len(regions) >= max_group_bound:
+            current_group_index += 1
+            max_group_bound = parameters['group_boundaries'][current_group_index + 1]
+        regions.append([chrom, regs, name, max_group_bound, strand, score])
+        matrix = np.vstack(matrix_rows)
+    matrix = Matrix(regions, matrix, parameters['group_boundaries'],
+                          parameters['sample_boundaries'],
+                          group_labels=parameters['group_labels'],
+                          sample_labels=parameters['sample_labels'])
+                # Versions of computeMatrix before 3.0 didn't have an entry of these per column, fix that
+    nSamples = len(matrix.sample_labels)
+    h = dict()
+    for k, v in parameters.items():
+        if k in special_params and type(v) is not list:
+            v = [v] * nSamples
+            if len(v) == 0:
+                v = [None] * nSamples
+        h[k] = v
+    print("h: "+ str(h))
+    return matrix, h
 
 
 class Matrix:
@@ -266,7 +333,8 @@ class Matrix:
 "(total nans: {})".format(num_nan))
 
 
-    def save_matrix(self, file_name):
+
+    def save_matrix(self, file_name, mode = 'scale-regions', ref_point = None):
         """
         saves the data required to reconstruct the matrix
         the format is:
@@ -287,18 +355,21 @@ class Matrix:
         parameters['group_labels'] = self.group_labels
         parameters['sample_boundaries'] = self.sample_boundaries
         parameters['group_boundaries'] = self.group_boundaries
-        
-        # Redo the parameters, ensuring things related to ticks and labels are repeated appropriately
+#        special_params = set(['unscaled 5 prime', 'unscaled 3 prime', 'body', 'downstream', 'upstream', 'ref point', 'bin size'])
+        special_params = {'unscaled 5 prime':0, 'unscaled 3 prime':0, 'body':1000, 'downstream':0, 'upstream':0, 'ref point':None, 'bin size':10}
+        if mode == 'reference-point':
+            special_params['ref point'] = ref_point
         nSamples = len(self.sample_labels)
         h = dict()
         for k, v in parameters.items():
             if type(v) is list and len(v) == 0:
                 v = None
-#            if k in self.special_params and type(v) is not list: #XXX special params??
-#                v = [v] * nSamples
-#                if len(v) == 0:
-#                    v = [None] * nSamples
             h[k] = v
+        for k , v in special_params.items():
+            v = [v] * nSamples
+            h[k] = v
+
+        print(h)
         fh = gzip.open(file_name, 'wb')
         params_str = json.dumps(h, separators=(',', ':'))
         fh.write(toBytes("@" + params_str + "\n"))
@@ -309,7 +380,7 @@ class Matrix:
             if not np.ma.is_masked(score_list[idx]):
                 np.float(score_list[idx])
             matrix_values = "\t".join(np.char.mod('%f', self.matrix[idx, :]))
-            starts = ["{0}".format(x[0]) for x in region[1]] #TODO Redefine regions. What does it expect?
+            starts = ["{0}".format(x[0]) for x in region[1]]
             ends = ["{0}".format(x[1]) for x in region[1]]
             starts = ",".join(starts)
             ends = ",".join(ends)
