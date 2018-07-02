@@ -1,0 +1,12 @@
+.gitignore
+__init__.py
+__pycache__
+*.pyc
+test.py
+*.swp
+testing
+data/
+.ipynb_*
+*.ipynb
+sandbox
+test_*
