@@ -6,7 +6,7 @@ import argparse
 import yaml
 import pandas as pd
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
 #import necessary modules
 from pybedtools import BedTool
@@ -81,7 +81,7 @@ def main():
    closestMapping = find_closest_genes(args.regionOfInterest, args.annotation, args.featureToFilter,args.output)
 
    # deeptoolsMatrix(peak2foldchange)
-   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, args.annotation, table_list, closestMapping, args.deseqFeature)
+   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, table_list, closestMapping, args.deseqFeature)
    matrix_output=os.path.join(args.output, "closestGene.matrix.gz")
    peak2foldchange.save_matrix(matrix_output)
 
