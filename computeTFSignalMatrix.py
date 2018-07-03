@@ -13,7 +13,7 @@ from pybedtools import BedTool
 
 from deeptoolsapi.computeMatrix import compute_matrix
 from deeptoolsapi.deeptoolsMatrix import Matrix, read_matrix_file
-from coordinates.bedtools import find_closest_genes
+from coordinates.bedtools import find_closest_genes, __parseRegions, __getValuesFromDEseqTable
 from coordinates.bedtools import extract_ge_folchange_per_peak
 
 def parse_args():
@@ -63,29 +63,21 @@ def main():
     TFfiles = args.transcriptionFactors
     files_list =[str(filename) for filename in TFfiles.split(',')]
     count = 0
-    regions = pd.read_csv(args.regionOfInterest, sep ='\t')
-    values_table = np.empty((len(regions), len(files_list)), dtype=float)
-    for file in files_list:
-        tf_score = pd.read_csv(file,sep = '\t')
-        values =[]
-        regs = []
-        for id, row in regions.iterrows():
-             string= str(row[0])+":"+str(row[1])+"-"+str(row[2])
-             if string in tf_score['name'].values:
-                 x = float(tf_score[tf_score.name == string][args.Feature])
-                 if np.isnan(x):
-                    x = np.nan
-                 values += [ x ]
-             else:
-                 values += [ np.nan ]
-             strand = "."
-             score = "."
-             reg = [(row[1],row[2])]
-             regs.append([row[0], reg, string, len(regions), strand, score])
-        values_table[:,count] = values
-        count +=1
+    regionFile = pd.read_csv(args.regionOfInterest, sep ='\t')
+    regions=[]
+    names = []
+    for id, row in regionFile.iterrows():
+         string= str(row[0])+";"+str(row[1])+";"+str(row[2])+";"+str(row[0])+":"+str(row[1])+"-"+str(row[2])+";.;.;"
+         regions.append(string)
+         names.append(str(row[0])+":"+str(row[1])+"-"+str(row[2]))
+    
+    valuesTab = np.empty((len(regions), len(files_list)), dtype=float)
+    for i, table in enumerate(files_list):
+        tf_score = pd.read_csv(table,sep = '\t')
+        values = __getValuesFromDEseqTable(names, tf_score, args.Feature)
+        valuesTab[:,i] = values
     matrix_output = os.path.join(args.output, "TF.matrix.gz")
-    matrix = Matrix(regs , values_table, group_boundaries = [0,len(regions)], sample_boundaries =  [x for x in range(0, len(files_list) + 1, 1)])
+    matrix = Matrix(regions = __parseRegions(regions) , matrix = valuesTab, group_boundaries = [0,len(regions)], sample_boundaries =  [x for x in range(0, len(files_list) + 1, 1)])
     matrix.save_matrix(matrix_output)
 
 if __name__ == "__main__":

@@ -65,6 +65,11 @@ def parse_args():
                       help="feature of interest from a deseq table",
                       default="log2(FC)")
 
+  parser.add_argument("--IDcolumn",
+                      dest="idcolumn",
+                      type=str,
+                      help="name of the column includes ids/names",
+                      default="GeneID")
 
   return parser
 
