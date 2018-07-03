@@ -80,7 +80,7 @@ def main():
                  values += [ np.nan ]
              strand = "."
              score = "."
-             reg = [(row[1],row[2])]
+             reg = [(int(row[1]),int(row[2]))]
              regs.append([row[0], reg, string, len(regions), strand, score])
         values_table[:,count] = values
         count +=1

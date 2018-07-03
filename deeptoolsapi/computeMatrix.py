@@ -119,6 +119,8 @@ def computefinalmatrix(regions, bigwigs, configfile):
     matrix_output=os.path.join(configfile['outputDir'], configfile['mode']+"_allsamples.matrix.gz")
     compute_matrix(configfile['mode'], bigwigs, regions, matrix_output, configfile)
     if configfile['extramatrix']:
+       print("load matrix")
        matrix2,params2 = read_matrix_file(configfile['extramatrix'])
+       print("reorder")
        additional_matrix = reorder_matrix (matrix2,configfile)
        __cbind_matrix(matrix_output,additional_matrix, configfile['outputDir'])
