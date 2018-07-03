@@ -19,9 +19,9 @@ def find_closest_genes(peaks, annotation, featureType, outputDir, filename = Non
 
     Peaks=Peaks.sort()
     sites=Annotation.sort()
-    if featureType:
-        __filter_annotation(outputDir, featureType, annotation)
-        sites=BedTool(outputDir+"filtered.gtf").sort()
+    # if featureType:
+    #     __filter_annotation(outputDir, featureType, annotation)
+    #     sites=BedTool(outputDir+"filtered.gtf").sort()
 
     mapped=Peaks.closest(sites, t="first")
 
