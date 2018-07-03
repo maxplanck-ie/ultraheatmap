@@ -5,4 +5,8 @@ __pycache__
 test.py
 *.swp
 testing
-
+data/
+.ipynb_*
+*.ipynb
+sandbox
+test_*

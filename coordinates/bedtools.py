@@ -1,39 +1,105 @@
 import pandas as pd
-
-import pybedtools
-
+import csv
+import os
+import sys
+from pybedtools import BedTool
+import numpy as np
 import gffutils
+from deeptoolsapi.deeptoolsMatrix import Matrix
 
-from gffannotator.gffannotator import GffAnnotator
 
-def find_closest_genes(dictionary,output):
+from coordinates.mapClosestGenes import keymap_from_closest_genes
+
+def find_closest_genes(peaks, annotation, featureType, outputDir, filename = None):
     """
     Find the closest gene using bedtools.closest
     """
-    peaks=pybedtools.BedTool(dictionary['regionOfInterest']).sort().saveas()
-    sites=pybedtools.BedTool(dictionary['annotation']).sort().saveas()
-    if dictionary['featureToFilter'] != None:
-       print(dictionary['featureToFilter'])
-       __filter_annotation(dictionary)
-       sites=pybedtools.BedTool(dictionary['output']+"filtered.gtf").sort().saveas()
-    mapped=peaks.closest(sites, s=True, k=dictionary['distance']).saveas(output)
+    Peaks = BedTool(peaks)
+    Annotation = BedTool(annotation)
 
+    Peaks=Peaks.sort()
+    sites=Annotation.sort()
+    if featureType:
+        __filter_annotation(outputDir, featureType, annotation)
+        sites=BedTool(outputDir+"filtered.gtf").sort()
 
-def __filter_annotation(dictionary): #XXX Here I would like to use a function from a package, if possible
+    mapped=Peaks.closest(sites, t="first")
+
+    if filename:
+        mapped.saveas(filename)
+
+    return(mapped)
+
+def __filter_annotation(outputDir, featureType, annotation):
    """
    filters annotation for the gene type of the interest
    """
-   with open(dictionary['output']+"filtered.gtf","w") as filteredAnnotation:
-        for feature in gffutils.DataIterator(dictionary['annotation']):
-            if feature.featuretype == dictionary['featureToFilter']:
+   with open(outputDir+"filtered.gtf","w") as filteredAnnotation:
+        for feature in gffutils.DataIterator(annotation):
+            if feature.featuretype == featureType:
                filteredAnnotation.write(str(feature)+'\n')
-          
-   #anno = GffAnnotator(dictionary['annotation'], dictionary['featureToFilter'], "filtered", True)
 
-def genes2Coordinates(geneids, gff_file, genome, version, fast_build = True):
-    anno = GffAnnotator(gff_file, genome, version, fast_build)
-    return(anno.geneId2Coordinates(geneids))
+def extract_ge_folchange_per_peak(peaks, deseqtables, closestMapping,deseqfeature):
+    """
+
+    """
+    #### <START>
+    ## The following set of functions produce a keymap (dictionary) mapping
+    ## each gene to associated peaks (<1:n>-mapping, n > 0)
+    ##
+
+    ## keymap: peak_key:gene_id
+    ## gene_id
+    ## peak_keys: cols 1-6 from bed format (1-based index)
+    Peaks = BedTool(peaks)
+    Peaks=Peaks.sort()
+    keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
+    return(extractFoldChange(keyMap_closest, deseqtables,deseqfeature))
+
+def __getValuesFromDEseqTable(geneid, deseqtable, deseqfeature):
+    v = []
+    for gid in geneid:
+        if gid in deseqtable['GeneID'].values:
+            x = float(deseqtable[deseqtable.GeneID == gid][deseqfeature])
+            if np.isnan(x):
+                x = np.nan
+            v += [ x ]
+        else:
+            v += [ np.nan ]
+    return v
+
+def __parseRegions(keyMap_closest):
+    """
+
+    """
+    regions =[]
+    for key in keyMap_closest:
+        region = key.split(';')
+        chrom, start, end, name, score, strand = region[0:6]
+        starts = start.split(",") ##XXX is it more than one?
+        ends = end.split(",")
+        regs = [(int(x), int(y)) for x, y in zip(starts, ends)]
+        regions.append([chrom, regs, name, len(keyMap_closest), strand, score]) #XXX max_group_bound? I have set it the number of line since i am thinking that we always have one bed file at the time. Am I right?
+    return regions
+
+
+def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
+    """
+
+    """
+    matrixDict = {}
+    geneIdtables =[parseGeneIdTable(table) for table in deseqtables]
+
+    valuesTab = np.empty((len(keyMap_closest), len(deseqtables)), dtype=float)
+    for i, table in enumerate(geneIdtables):
+        values = __getValuesFromDEseqTable([keyMap_closest[key] for key in keyMap_closest], table, deseqfeature)
+        valuesTab[:,i] = values
+
+
+    return (Matrix(regions = __parseRegions(keyMap_closest), matrix = valuesTab, group_boundaries = [0,len(keyMap_closest)], \
+    sample_boundaries =  [x for x in range(0, len(deseqtables) + 1, 1)]))
+
+
 
 def parseGeneIdTable(table_file):
     return(pd.read_csv(table_file, sep ='\t'))
-
