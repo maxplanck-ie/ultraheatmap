@@ -53,6 +53,11 @@ def parse_args():
                       help="feature of interest",
                       default="ratio")
 
+  parser.add_argument("--IDcolumn",
+                      dest="idcolumn",
+                      type=str,
+                      help="name of the column includes ids/names",
+                      default="GeneID")
 
   return parser
 
@@ -94,7 +99,7 @@ def main():
     print(valuesTab.shape)
     for i, table in enumerate(files_list):
        tf_score = pd.read_csv(table,sep = '\t')
-       values = __getValuesFromDEseqTable(names, tf_score, args.Feature)
+       values = __getValuesFromDEseqTable(names, tf_score, args.Feature, args.idcolumn)
        print(len(values))
        valuesTab[:,i] = values
 

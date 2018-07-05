@@ -39,7 +39,7 @@ def __filter_annotation(outputDir, featureType, annotation):
             if feature.featuretype == featureType:
                filteredAnnotation.write(str(feature)+'\n')
 
-def extract_ge_folchange_per_peak(peaks, deseqtables, closestMapping,deseqfeature):
+def extract_ge_folchange_per_peak(peaks, deseqtables, closestMapping,deseqfeature,geneIdColumn):
     """
 
     """
@@ -54,13 +54,13 @@ def extract_ge_folchange_per_peak(peaks, deseqtables, closestMapping,deseqfeatur
     Peaks = BedTool(peaks)
     Peaks=Peaks.sort()
     keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
-    return(extractFoldChange(keyMap_closest, deseqtables,deseqfeature))
+    return(extractFoldChange(keyMap_closest, deseqtables,deseqfeature,geneIdColumn))
 
-def __getValuesFromDEseqTable(geneid, deseqtable, deseqfeature):
+def __getValuesFromDEseqTable(geneid, deseqtable, deseqfeature, geneIdColumn):
     v = []
     for gid in geneid:
-        if gid in deseqtable['GeneID'].values:
-            x = float(deseqtable[deseqtable.GeneID == gid][deseqfeature])
+        if gid in deseqtable[geneIdColumn].values:
+            x = float(deseqtable[deseqtable[geneIdColumn] == gid][deseqfeature])
             if np.isnan(x):
                 x = np.nan
             v += [ x ]
@@ -83,7 +83,7 @@ def __parseRegions(keyMap_closest):
     return regions
 
 
-def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
+def extractFoldChange(keyMap_closest, deseqtables, deseqfeature, geneIdColumn):
     """
 
     """
@@ -92,7 +92,7 @@ def extractFoldChange(keyMap_closest, deseqtables, deseqfeature):
 
     valuesTab = np.empty((len(keyMap_closest), len(deseqtables)), dtype=float)
     for i, table in enumerate(geneIdtables):
-        values = __getValuesFromDEseqTable([keyMap_closest[key] for key in keyMap_closest], table, deseqfeature)
+        values = __getValuesFromDEseqTable([keyMap_closest[key] for key in keyMap_closest], table, deseqfeature, geneIdColumn)
         valuesTab[:,i] = values
 
 

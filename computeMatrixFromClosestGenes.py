@@ -86,7 +86,7 @@ def main():
    closestMapping = find_closest_genes(args.regionOfInterest, args.annotation, args.featureToFilter,args.output)
 
    # deeptoolsMatrix(peak2foldchange)
-   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, table_list, closestMapping, args.deseqFeature)
+   peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, table_list, closestMapping, args.deseqFeature, args.idcolumn)
    print(len(peak2foldchange.regions))
    matrix_output=os.path.join(args.output, "closestGene.matrix.gz")
    peak2foldchange.save_matrix(matrix_output)
