@@ -98,7 +98,7 @@ def reorder_matrix(matrix,configfile):
          matrix.group_boundaries.extend(freq)
 
          match = lambda a, b: [ b.index(str(x)) if str(x) in b else None for x in a ]
-         ii_match= match(order["name"], id_list)
+         ii_match= match(order["name"], list(regions)[2])
 
          ordered_regions = [ matrix.regions[i] for i in ii_match ]
          ordered_matrix = matrix.matrix[ii_match, :]
