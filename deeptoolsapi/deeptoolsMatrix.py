@@ -84,7 +84,6 @@ def read_matrix_file(matrix_file):
                 v = [None] * nSamples
         h[k] = v
     print("h: "+ str(h))
-    print(len(matrix.regions))
     return matrix, h
 
 

@@ -83,32 +83,33 @@ def __cbind_matrix(matrix1, matrix2, output_dir):
     cmd=";".join(cbind_cmd)
     subprocess.run(cmd, shell=True)
 
-def reorder_matrix(matrix,configfile):
+def reorder_matrix(matrix,configfile): ##TODO
     orderedbed=os.path.join(configfile['outputDir'],"ordered.bed")
-    if os.path.isfile(orderedbed):
+    if configfile["kmeans_clust"] or configfile["hclust"] or configfile["refIndex"]:
          matrix.group_boundaries = [0]
          ordered_regions = []
          ordered_matrix = []
+
          regions=zip(*matrix.regions)
-         order = pd.read_csv(orderedbed, sep ='\t')
+         order = pd.read_csv(orderedbed, sep ='\t') #TODO what to compare to if no ordered.bed??
          from itertools import groupby, accumulate
          groups_freq = {key:len(list(group)) for key, group in groupby(order["deepTools_group"])}
          matrix.group_labels = list(groups_freq.keys())
          freq = list(accumulate(groups_freq.values()))
          matrix.group_boundaries.extend(freq)
-
+         id_list = []
+         for row in matrix.regions:
+             id_list.append(row[2])
+         print(len(id_list))
          match = lambda a, b: [ b.index(x) if x in b else None for x in a ]
-
          ii_match= match(order["name"], list(regions)[2])
-         for i in ii_match:
-             print(i)
-             print(matrix.regions[i])
+         print(len(ii_match))
          ordered_regions = [ matrix.regions[i] for i in ii_match ]
          ordered_matrix = matrix.matrix[ii_match, :]
 
          matrix.regions = ordered_regions
          matrix.matrix = ordered_matrix
-    else:
+    else: #TODO
         #update group_label
         matrix.group_labels = ["genes"]
 

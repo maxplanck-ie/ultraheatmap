@@ -87,6 +87,7 @@ def main():
 
    # deeptoolsMatrix(peak2foldchange)
    peak2foldchange = extract_ge_folchange_per_peak(args.regionOfInterest, table_list, closestMapping, args.deseqFeature)
+   print(len(peak2foldchange.regions))
    matrix_output=os.path.join(args.output, "closestGene.matrix.gz")
    peak2foldchange.save_matrix(matrix_output)
 

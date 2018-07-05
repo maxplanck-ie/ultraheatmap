@@ -6,6 +6,7 @@ import argparse
 import yaml
 import pandas as pd
 import numpy as np
+from itertools import accumulate
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
 #import necessary modules
@@ -22,7 +23,7 @@ def parse_args():
   """
   parser=argparse.ArgumentParser()
   #required argumnets:
-  parser.add_argument("--region",
+  parser.add_argument("--region", #comma separated region files - regions cannot have header!! XXX Always a uniques name is needed
                       "-R",
                       dest="regionOfInterest",
                       type=str,
@@ -34,6 +35,7 @@ def parse_args():
                       "-tf",
                       dest="transcriptionFactors",
                       type=str,
+                      metavar="STR",
                       help="transcription factor signals (.bed)",
                       required = True)
 
@@ -49,7 +51,7 @@ def parse_args():
                       dest="Feature",
                       type=str,
                       help="feature of interest",
-                      default="percentage")
+                      default="ratio")
 
 
   return parser
@@ -62,22 +64,42 @@ def main():
     args = parser.parse_args()
     TFfiles = args.transcriptionFactors
     files_list =[str(filename) for filename in TFfiles.split(',')]
-    count = 0
-    regionFile = pd.read_csv(args.regionOfInterest, sep ='\t')
-    regions=[]
+    groupBoundries = [0]
     names = []
-    for id, row in regionFile.iterrows():
-         string= str(row[0])+";"+str(row[1])+";"+str(row[2])+";"+str(row[0])+":"+str(row[1])+"-"+str(row[2])+";.;.;"
-         regions.append(string)
-         names.append(str(row[0])+":"+str(row[1])+"-"+str(row[2]))
-    
+    regions=[]
+    regions_list =[str(filename) for filename in args.regionOfInterest.split(',')]
+    for region in regions_list:
+        regionFile = pd.read_csv(region, sep ='\t', header=None) ##XXX IS it always without header?
+        rows, columns = regionFile.shape
+        assert columns >= 3
+        assert columns < 7
+        if columns == 3:
+            regionFile[len(regionFile.columns)] = "."
+            rows, columns = regionFile.shape
+        if columns == 4:
+           regionFile[len(regionFile.columns)] = "."
+           rows, columns = regionFile.shape
+        if columns == 5:
+            regionFile[len(regionFile.columns)] = "."
+            rows, columns = regionFile.shape
+        for id, row in regionFile.iterrows():
+            if row[3]  == ".":
+               row[3] = str(row[0])+":"+str(row[1])+"-"+str(row[2])
+            string= str(row[0])+";"+str(row[1])+";"+str(row[2])+";"+str(row[3])+";"+str(row[4])+";"+str(row[5])+";"
+            regions.append(string)
+            names.append(row[3])
+        groupBoundries.append(len(regionFile))
+
     valuesTab = np.empty((len(regions), len(files_list)), dtype=float)
+    print(valuesTab.shape)
     for i, table in enumerate(files_list):
-        tf_score = pd.read_csv(table,sep = '\t')
-        values = __getValuesFromDEseqTable(names, tf_score, args.Feature)
-        valuesTab[:,i] = values
+       tf_score = pd.read_csv(table,sep = '\t')
+       values = __getValuesFromDEseqTable(names, tf_score, args.Feature)
+       print(len(values))
+       valuesTab[:,i] = values
+
     matrix_output = os.path.join(args.output, "TF.matrix.gz")
-    matrix = Matrix(regions = __parseRegions(regions) , matrix = valuesTab, group_boundaries = [0,len(regions)], sample_boundaries =  [x for x in range(0, len(files_list) + 1, 1)])
+    matrix = Matrix(regions = __parseRegions(regions) , matrix = valuesTab, group_boundaries = list(accumulate(groupBoundries)), sample_boundaries =  [x for x in range(0, len(files_list) + 1, 1)])
     matrix.save_matrix(matrix_output)
 
 if __name__ == "__main__":

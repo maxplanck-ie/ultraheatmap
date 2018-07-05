@@ -28,7 +28,7 @@ def parse_args(defaults={"mode":None, "flanking_str":None, "unscaled_str":None, 
                        type=str,
                        help="All the Bigwig files in comma separated format",
                        required=True)
-   parser.add_argument("-R",
+   parser.add_argument("-R", ##comma separated
                        "--regions",
                        dest="regionOfInterest",
                        help="Region of interest(.bed/.gtf)",
@@ -142,22 +142,20 @@ def main():
    with open(os.path.join(output_dir,'configfile.yaml'), 'w') as c:
       yaml.dump(configfile, c, default_flow_style=False)
 
-   regionOfInterest =os.path.abspath(args.regionOfInterest)
-   open(regionOfInterest,'r')
+   region_list=[str(file) for file in args.regionOfInterest.split(',')] ##This can later on be used for refIndex
+   region_files = " ".join(region_list)
 
    #3. Generate an ordered region, using references onyl
    bigwig_list=[str(bw) for bw in args.bigwigs.split(',')] ##This can later on be used for refIndex
    bigwig_files = " ".join(bigwig_list)
 
-   regions = regionOfInterest
    if args.refIndex:
-       orderedbed = cm.sortbyreference(regions,args.refIndex,bigwig_list,configfile)
-       regions = orderedbed
-       assert regions == os.path.join(output_dir,"ordered.bed")
-
+       orderedbed = cm.sortbyreference(region_files,args.refIndex,bigwig_list,configfile)
+       region_files = orderedbed
+      
    #4.Built matrices over all the samples, add closest gene matrix if provided
 
-   cm.computefinalmatrix(regions, bigwig_files, configfile)
+   cm.computefinalmatrix(region_files, bigwig_files, configfile)
 
 
 
