@@ -101,7 +101,7 @@ def reorder_matrix(matrix,configfile): ##TODO
          for row in matrix.regions:
              id_list.append(row[2])
          print(len(id_list))
-         match = lambda a, b: [ b.index(x) if x in b else None for x in a ]
+         match = lambda a, b: [ b.index(str(x)) if str(x) in b else None for x in a ]
          ii_match= match(order["name"], list(regions)[2])
          print(len(ii_match))
          ordered_regions = [ matrix.regions[i] for i in ii_match ]
