@@ -1,12 +1,27 @@
 #########Default config file##############
-outputDir: 
-kmeans_clust: 0
-hclust: 0
-userconfig: 
-flanking_str: 1000
-unscaled_str: 0
+outFileSortedRegions:
+kmeans:
+hclust:
+userconfig:
 metagene: False
-refPoint: "center"
-mode: "scale-regions"
-extramatrix:
-
+beforeRegionStartLength: 500
+afterRegionStartLength: 1500
+regionBodyLength: 1000
+binSize: 10
+referencePoint: "center"
+verbose: False
+averageTypeBins: "mean"
+missingDataAsZero: False
+minThreshold:
+maxThreshold:
+scale: 1
+skipZeros: False
+nanAfterEnd: False
+numberOfProcessors: 1
+sortRegions: "keep"  ####{descend,ascend,no,keep}
+sortUsing: "mean"    ####{mean,median,max,min,sum,region_length}
+unscaled5prime: 0
+unscaled3prime: 0
+regionsLabel:
+samplesLabel:
+refIndex:

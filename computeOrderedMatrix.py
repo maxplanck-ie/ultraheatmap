@@ -15,7 +15,7 @@ import deeptoolsapi.computeMatrix as cm
 code_dir = os.path.dirname(os.path.realpath(__file__))
 
 #Parse entered arguments
-def parse_args(defaults={"mode":None, "flanking_str":None, "unscaled_str":None, "kmeans_clust":None, "hclust":None, "refPoint":None, "extramatrix":None, "metagene":None, "userconfig":None}):
+def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "metagene":None, "userconfig":None, "outFileSortedRegions": None, "refIndex" : None}):
 
    """
    Parse the arguments from the command line
@@ -25,73 +25,54 @@ def parse_args(defaults={"mode":None, "flanking_str":None, "unscaled_str":None, 
    parser.add_argument("-b",
                        "--Signal",
                        dest="bigwigs",
-                       type=str,
-                       help="All the Bigwig files in comma separated format",
+                       nargs='+',
+                       help="All the Bigwig files in spaced format",
                        required=True)
-   parser.add_argument("-R", ##comma separated
+   parser.add_argument("-R",
                        "--regions",
                        dest="regionOfInterest",
-                       help="Region of interest(.bed/.gtf)",
+                       nargs='+',
+                       help="All regions of interest, spaced .bed/.gtf files",
                        required=True)
-   parser.add_argument("-o",
-                       "--output",
-                       dest="outputDir",
-                       help="the directory that all the output will besaved",
-                       required=True)
+   parser.add_argument("-om",
+                    "--matrixOutput",
+                    dest="matrixOutput",
+                    help="the output matrix",
+                    required=True)
+
    #optional arguments
-   parser.add_argument("-m",
-                       "--mode",
-                       dest="mode",
-                       type = str,
-                       help= "available modes are reference-point and scale-regions",
-                       default=defaults["mode"])
-   parser.add_argument("-f",
-                      "--flank",
-                      dest="flanking_str",
-                      metavar="INT",
-                      type=int,
-                      help="flanking regions",
-                      default=defaults["flanking_str"])
-   parser.add_argument("--unscaled_str",
-                       dest="unscaled_str",
-                       type=int,
-                       metavar="INT",
-                       help="number of bases from 5 prime and 3 prime to exclude from the region",
-                       default=defaults["unscaled_str"])
-   parser.add_argument("--kmeans_clust",
-                       dest="kmeans_clust",
+   parser.add_argument("-os",
+                       "--sortedOutput",
+                       dest="outFileSortedRegions",
+                       help="the ordered region file (.bed)",
+                       default = defaults["outFileSortedRegions"])
+   parser.add_argument("--kmeans",
+                       dest="kmeans",
                        metavar="INT",
                        type=int,
                        help="number of k-means clusters",
-                       default=defaults["kmeans_clust"])
+                       default=defaults["kmeans"])
    parser.add_argument("--hclust",
                        dest="hclust",
                        metavar="INT",
                        type=int,
                        help="number of clusters in hierarchical clustering",
                        default=defaults["hclust"])
-   parser.add_argument("--refIndex", #XXX Note that it is zero based!
+   parser.add_argument("--refIndex",
                        dest="refIndex",
-                       type=str,
-                       metavar="STRING",
-                       help="bigwig files pointed to references in comma separated format")
+                       nargs='+',
+                       help="Indices of bigwig files which pointed to the references. Several indices can be separated by space. Note that the numbers are zero based!",
+                       default = defaults["refIndex"])
    parser.add_argument("--metagene",
                        dest="metagene",
                        action="store_true",
                        help="when region is .GTF or .BED12 and mode is scale-regions",
                        default=defaults["metagene"])
    parser.add_argument("--refPoint",
-                       dest="refPoint",
+                       dest="referencePoint",
                        type=str,
                        help="Reference point for plotting can be set to TSS, TES or center",
-                       default=defaults["refPoint"])
-   parser.add_argument("--addmatrix",
-                       "-M",
-                       dest="extramatrix",
-                       type=str,
-                       metavar="STRING",
-                       help="add a matrix",
-                       default=defaults["extramatrix"])
+                       default=defaults["referencePoint"])
    parser.add_argument("--config",
                        dest="userconfig",
                        help="this will be added to the dieafult config file",
@@ -122,7 +103,7 @@ def add_diff(a,b):
 
 def main():
    """
-   Main function to integrate heatmaps (and to add external tracks??)
+   Compute a matrix from an ordered region file
    """
    # First part of the code is applied for all cases
    defaultconfigfile = {}
@@ -132,31 +113,23 @@ def main():
    #2. Parse the arguments
    parser = parse_args(defaultconfigfile)
    args = parser.parse_args()
-   output_dir =os.path.abspath(args.outputDir)
-   # modify config file if needed
+   #2.1 modify config file if needed
    configfile=defaultconfigfile
    add_diff(vars(args),configfile)
-
    if args.userconfig:
       configfile= merge_dictionaries(configfile, args.userconfig)
-   with open(os.path.join(output_dir,'configfile.yaml'), 'w') as c:
-      yaml.dump(configfile, c, default_flow_style=False)
 
-   region_list=[str(file) for file in args.regionOfInterest.split(',')] ##This can later on be used for refIndex
-   region_files = " ".join(region_list)
-
-   #3. Generate an ordered region, using references onyl
-   bigwig_list=[str(bw) for bw in args.bigwigs.split(',')] ##This can later on be used for refIndex
-   bigwig_files = " ".join(bigwig_list)
-
+   #3. Generate an ordered region, using references only
    if args.refIndex:
-       orderedbed = cm.sortbyreference(region_files,args.refIndex,bigwig_list,configfile)
-       region_files = orderedbed
-      
-   #4.Built matrices over all the samples, add closest gene matrix if provided
+       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile)
+       if os.path.getsize(configfile["outFileSortedRegions"]) > 0:
+          regions_list = [configfile["outFileSortedRegions"]]
 
-   cm.computefinalmatrix(region_files, bigwig_files, configfile)
+   #4.Build a matrix over all the samples
+   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile)
 
+   matrix_output=os.path.join(args.matrixOutput)
+   hm.save_matrix(matrix_output)
 
 
 

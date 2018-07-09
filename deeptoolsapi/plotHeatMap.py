@@ -1,32 +1,42 @@
-import subprocess
 import os
+import sys
+import numpy as np
+from deeptools.heatmapper import heatmapper
 
-###Load deeptools
-deeptools_module_load="module load deeptools"
 
 #######plotHeatMap
-def plot_heatmap(mode, matrix, configfile, ordered):
+def __plot_heatmap(hm,indexList, configfile):
    """
    """
-   heatmap_cmd =[deeptools_module_load]
-   heatmap_plot = os.path.join(configfile['outputDir'],mode+"_heatmap.png")
-   kmeans=""
-   hclust=""
-   if configfile['kmeans_clust'] != 0:
-      kmeans=' --kmeans '+ str(configfile['kmeans_clust'])
+   if hm.parameters['min threshold'] is not None or hm.parameters['max threshold'] is not None:
+        hm.filterHeatmapValues(hm.parameters['min threshold'], hm.parameters['max threshold'])
 
-   if configfile["hclust"] != 0:
-      hclust=' --hclust '+str(configfile['hclust'])
+   if configfile["sortRegions"] == 'keep':
+      configfile["sortRegions"] = 'no'  # These are the same thing ##XXX ???
 
-   if ordered == True:
-          heatmap_plot = os.path.join(configfile['outputDir'],mode+"_refonly_heatmap.png")
-          orderedbed = os.path.join(configfile['outputDir'],"ordered.bed")
-          heatmap_cmd.append("plotHeatmap -m "+matrix+" --outFileName "+ heatmap_plot + " --outFileSortedRegions "+orderedbed+kmeans+hclust)
+   if configfile["kmeans"] is not None:
+        hm.matrix.hmcluster(configfile["kmeans"], method='kmeans')
    else:
-          print("heat_map on all samples")
-          heatmap_cmd.append("plotHeatmap -m "+matrix+" --outFileName "+ heatmap_plot + " --sortRegions no "+kmeans+hclust)
+        if configfile["hclust"] is not None:
+            print("Performing hierarchical clustering."
+                  "Please note that it might be very slow for large datasets.\n")
+            hm.matrix.hmcluster(configfile["hclust"], method='hierarchical')
 
-   cmd=";".join(heatmap_cmd)
-   print(cmd)
-   subprocess.run(cmd, shell=True)
+   group_len_ratio = np.diff(hm.matrix.group_boundaries) / len(hm.matrix.regions)
+   if np.any(group_len_ratio < 5.0 / 1000):
+        problem = np.flatnonzero(group_len_ratio < 5.0 / 1000)
+        sys.stderr.write("WARNING: Group '{}' is too small for plotting, you might want to remove it. "
+                         "There will likely be an error message from matplotlib regarding this "
+                         "below.\n".format(hm.matrix.group_labels[problem[0]]))
 
+   if configfile["regionsLabel"]:
+        hm.matrix.set_group_labels(["regionsLabel"])
+
+   if configfile["samplesLabel"] and len(configfile["samplesLabel"]):
+        hm.matrix.set_sample_labels(args.samplesLabel)
+
+   if configfile["sortRegions"] != 'no':
+        hm.matrix.sort_groups(sort_using=configfile["sortUsing"],sort_method=configfile["sortRegions"],sample_list=indexList)
+
+   assert configfile["outFileSortedRegions"]
+   hm.save_BED(open(configfile["outFileSortedRegions"], "w"))
