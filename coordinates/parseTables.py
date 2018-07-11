@@ -17,7 +17,7 @@ def find_closest_genes(peaks, annotation, featureType, filteredoutput, filename 
     Peaks=Peaks.sort()
     sites=Annotation.sort()
     if featureType:
-        print(featureType)
+        assert filteredoutput
         __filter_annotation(filteredoutput, featureType, annotation)
         sites=BedTool(filteredoutput).sort()
     mapped=Peaks.closest(sites, t="first")
@@ -45,13 +45,13 @@ def extract_ge_folchange_per_peak(peaks, tables, closestMapping,feature,IdColumn
     Peaks = BedTool(peaks)
     Peaks=Peaks.sort()
     keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
-    __extractFoldChange(peaks, keyMap_closest, tables,feature,IdColumn,hm)
+    __update_matrix_values(peaks, keyMap_closest, tables,feature,IdColumn,hm)
+    __update_parameters(hm,len(tables))
 
-def __getValuesFromTable(peaks, keyMap_closest, table, feature, IdColumn):
+def __getValuesFromGETable(peaks, keyMap_closest, table, feature, IdColumn):
     v = []
     for peak in peaks:
         key = ';'.join(map(str,peak))
-        print(key)
         value = keyMap_closest[key]
         if value in table[IdColumn].values:
             x = float(table[table[IdColumn] == value][feature])
@@ -63,19 +63,33 @@ def __getValuesFromTable(peaks, keyMap_closest, table, feature, IdColumn):
     return v
 
 
-def __extractFoldChange(peaks, keyMap_closest, tables, feature, IdColumn,hm):
+def __getValuesFromTable(peaks, table, feature, IdColumn):
+    v = []
+    for peak in peaks:
+        name = peak[3]
+        if name in table[IdColumn].values:
+           x = float(table[table[IdColumn] == name][feature])
+           if np.isnan(x):
+              x = np.nan
+           v += [ x ]
+        else:
+           v += [ np.nan ]
+    return v
+
+def __update_matrix_values(peaks, keyMap_closest, tables, feature, IdColumn,hm):
     """
 
     """
-    print(keyMap_closest)
     assert len(keyMap_closest) == len(peaks)
     valuesTab = np.empty((len(peaks), len(tables)), dtype=float)
     for i, table in enumerate(tables):
         table = parseTable(table)
-        values = __getValuesFromTable(peaks, keyMap_closest, table, feature, IdColumn)
+        values = __getValuesFromGETable(peaks, keyMap_closest, table, feature, IdColumn)
         valuesTab[:,i] = values
+        hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i+1)]
     hm.matrix.matrix = hm.matrix.matrix + valuesTab
-    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x for x in range(0, len(tables) + 1, 1)]
+    last_col = hm.matrix.sample_boundaries[-1]
+    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]
 
 
 
@@ -89,3 +103,30 @@ def parseMatrixRegions(regions):
             for start , end in region[1]:
                 all_regions.append([region[0],start, end, region[2], region[3], region[4], region[5]])
     return all_regions
+
+def __update_parameters(hm,length): ##XXX How????
+    """
+
+    """
+    for i in range(length):
+        hm.parameters['unscaled 5 prime'].append(0)
+        hm.parameters['unscaled 3 prime'].append(0)
+        hm.parameters['body'].append(1000)
+        hm.parameters['downstream'].append(0)
+        hm.parameters['upstream'].append(0)
+        hm.parameters['ref point'].append('None')
+        hm.parameters['bin size'].append(10)
+
+def update_matrix_values(peaks, tables,feature,IdColumn,hm):
+    """
+
+    """
+    valuesTab = np.empty((len(peaks), len(tables)), dtype=float)
+    for i, table in enumerate(tables):
+        table = parseTable(table)
+        values = __getValuesFromTable(peaks, table, feature, IdColumn)
+        valuesTab[:,i] = values
+        hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i+1)]
+    hm.matrix.matrix = hm.matrix.matrix + valuesTab
+    last_col = hm.matrix.sample_boundaries[-1]
+    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]

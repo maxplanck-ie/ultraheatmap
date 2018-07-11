@@ -120,6 +120,7 @@ def main():
       configfile= merge_dictionaries(configfile, args.userconfig)
 
    #3. Generate an ordered region, using references only
+   regions_list = args.regionOfInterest
    if args.refIndex:
        cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile)
        if os.path.getsize(configfile["outFileSortedRegions"]) > 0:
@@ -130,12 +131,6 @@ def main():
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

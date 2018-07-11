@@ -92,9 +92,8 @@ def main():
       extract_ge_folchange_per_peak(regions, args.tables, closestMapping, args.Feature, args.idcolumn,hm)
 
 
-   #else:
-       #TODO Thomas case, make the joined matrix
-
+   else: #No closest gene is involved in this case , each enrichment id is individually checked and values are updated.
+      update_matrix_values(regions, args.tables, args.Feature, args.idcolumn,hm)
    #save the joint matrix obtained from either of cases
    hm.save_matrix(os.path.join(args.outputMatrix))
 
