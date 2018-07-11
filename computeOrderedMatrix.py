@@ -32,7 +32,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        "--regions",
                        dest="regionOfInterest",
                        nargs='+',
-                       help="All regions of interest, spaced .bed/.gtf files",
+                       help="All regions of interest, space-separated .bed/.gtf files",
                        required=True)
    parser.add_argument("-om",
                     "--matrixOutput",

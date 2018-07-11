@@ -1,8 +1,6 @@
 import os
 import sys
 import numpy as np
-from deeptools.heatmapper import heatmapper
-
 
 #######plotHeatMap
 def __plot_heatmap(hm,indexList, configfile):
