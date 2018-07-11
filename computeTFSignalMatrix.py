@@ -13,7 +13,6 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__
 from pybedtools import BedTool
 
 from deeptoolsapi.computeMatrix import compute_matrix
-from deeptoolsapi.deeptoolsMatrix import Matrix, read_matrix_file
 from coordinates.bedtools import find_closest_genes, __parseRegions, __getValuesFromDEseqTable
 from coordinates.bedtools import extract_ge_folchange_per_peak
 
