@@ -114,7 +114,7 @@ def __update_parameters(hm,length): ##XXX How????
         hm.parameters['body'].append(1000)
         hm.parameters['downstream'].append(0)
         hm.parameters['upstream'].append(0)
-        hm.parameters['ref point'].append('None')
+        hm.parameters['ref point'].append(null)
         hm.parameters['bin size'].append(10)
 
 def update_matrix_values(peaks, tables,feature,IdColumn,hm):

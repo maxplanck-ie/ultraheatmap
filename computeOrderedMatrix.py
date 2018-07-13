@@ -15,7 +15,7 @@ import deeptoolsapi.computeMatrix as cm
 code_dir = os.path.dirname(os.path.realpath(__file__))
 
 #Parse entered arguments
-def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "metagene":None, "userconfig":None, "outFileSortedRegions": None, "refIndex" : None}):
+def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "metagene":None, "userconfig":None, "outFileSortedRegions": None, "refIndex" : None, "numberOfProcessors" : None}):
 
    """
    Parse the arguments from the command line
@@ -68,6 +68,12 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        action="store_true",
                        help="when region is .GTF or .BED12 and mode is scale-regions",
                        default=defaults["metagene"])
+   parser.add_argument("--numberOfProcessors",
+                       "-p",
+                       dest="numberOfProcessors",
+                       help="Number of processors to use.",
+                       metavar="INT",
+                       default=defaults["numberOfProcessors"])
    parser.add_argument("--refPoint",
                        dest="referencePoint",
                        type=str,
@@ -77,6 +83,13 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        dest="userconfig",
                        help="this will be added to the dieafult config file",
                        default=defaults["userconfig"])
+   parser.add_argument('--samplesLabel',
+                       help='Labels for the samples. This will then be passed to plotHeatmap and plotProfile. The '
+                       'default is to use the file name of the '
+                       'sample. The sample labels should be separated '
+                       'by spaces and quoted if a label itself'
+                       'contains a space E.g. --samplesLabel label-1 "label 2"  ',
+                        nargs='+')                       
 
    return  parser
 
@@ -127,7 +140,7 @@ def main():
           regions_list = [configfile["outFileSortedRegions"]]
 
    #4.Build a matrix over all the samples
-   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile)
+   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile,args)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)

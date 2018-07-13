@@ -8,7 +8,7 @@ beforeRegionStartLength: 500
 afterRegionStartLength: 1500
 regionBodyLength: 1000 # 0 for reference-point 1000 for scale-regions
 binSize: 10
-referencePoint: "center"
+referencePoint: #"center"
 verbose: False
 averageTypeBins: "mean"
 missingDataAsZero: False
@@ -23,5 +23,6 @@ sortUsing: "mean"    ####{mean,median,max,min,sum,region_length}
 unscaled5prime: 0
 unscaled3prime: 0
 regionsLabel:
-samplesLabel:
+samplesLabel: 
 refIndex:
+numberOfProcessors: 1

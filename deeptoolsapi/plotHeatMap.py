@@ -10,7 +10,7 @@ def __plot_heatmap(hm,indexList, configfile):
         hm.filterHeatmapValues(hm.parameters['min threshold'], hm.parameters['max threshold'])
 
    if configfile["sortRegions"] == 'keep':
-      configfile["sortRegions"] = 'no'  # These are the same thing ##XXX ???
+      configfile["sortRegions"] = 'no'  # These are the same thing ##XXX what does that mean???
 
    if configfile["kmeans"] is not None:
         hm.matrix.hmcluster(configfile["kmeans"], method='kmeans')

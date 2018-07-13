@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(_
 from deeptoolsapi.plotHeatMap import __plot_heatmap
 from deeptools.heatmapper import heatmapper
 
-def __compute_matrix(bw, bed, configfile): ##XXX What about metagene?
+def __compute_matrix(bw, bed, configfile, args): ##XXX What about metagene?
    """
    computing the corresponding matrix using deeptools/computeMatrix
    """
@@ -31,7 +31,8 @@ def __compute_matrix(bw, bed, configfile): ##XXX What about metagene?
                   'unscaled 3 prime': configfile["unscaled3prime"]
    }
    hm = heatmapper()
-   hm.computeMatrix(score_file_list = bw, regions_file = bed, parameters = parameters, blackListFileName=None, verbose=False, allArgs=None)
+   dict = {'numberOfProcessors':configfile['numberOfProcessors']}
+   hm.computeMatrix(score_file_list = bw, regions_file = bed, parameters = parameters, blackListFileName=None, verbose=False, allArgs=args)
    return hm
 
 def sortbyreference(regions,refIndex,bigwigs,configfile):
@@ -44,6 +45,6 @@ def sortbyreference(regions,refIndex,bigwigs,configfile):
     __plot_heatmap(hm, refIndex, configfile)
 
 
-def computefinalmatrix(regions, bigwigs, configfile):
-    hm = __compute_matrix(bigwigs, regions, configfile)
+def computefinalmatrix(regions, bigwigs, configfile, args):
+    hm = __compute_matrix(bigwigs, regions, configfile, args)
     return hm
