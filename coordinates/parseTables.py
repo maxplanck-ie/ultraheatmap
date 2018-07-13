@@ -130,3 +130,4 @@ def update_matrix_values(peaks, tables,feature,IdColumn,hm):
     hm.matrix.matrix = np.concatenate((hm.matrix.matrix, valuesTab[:,]), axis = 1)
     last_col = hm.matrix.sample_boundaries[-1]
     hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]
+    __update_parameters(hm,len(tables))
