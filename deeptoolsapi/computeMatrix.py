@@ -35,13 +35,13 @@ def __compute_matrix(bw, bed, configfile, args): ##XXX What about metagene?
    hm.computeMatrix(score_file_list = bw, regions_file = bed, parameters = parameters, blackListFileName=None, verbose=False, allArgs=args)
    return hm
 
-def sortbyreference(regions,refIndex,bigwigs,configfile):
+def sortbyreference(regions,refIndex,bigwigs,configfile, args):
     refList=[]
     for index in refIndex:
         refList.append(bigwigs[int(index)])
     #only on the ref.ones
     ref_bw=" ".join(refList)
-    hm = __compute_matrix(refList, regions, configfile)
+    hm = __compute_matrix(refList, regions, configfile, args)
     __plot_heatmap(hm, refIndex, configfile)
 
 

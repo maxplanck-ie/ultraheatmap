@@ -89,7 +89,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        'sample. The sample labels should be separated '
                        'by spaces and quoted if a label itself'
                        'contains a space E.g. --samplesLabel label-1 "label 2"  ',
-                        nargs='+')                       
+                        nargs='+')
 
    return  parser
 
@@ -135,7 +135,7 @@ def main():
    #3. Generate an ordered region, using references only
    regions_list = args.regionOfInterest
    if args.refIndex:
-       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile)
+       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile, args)
        if os.path.getsize(configfile["outFileSortedRegions"]) > 0:
           regions_list = [configfile["outFileSortedRegions"]]
 
