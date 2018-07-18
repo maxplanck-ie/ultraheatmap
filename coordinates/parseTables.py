@@ -87,7 +87,7 @@ def __update_matrix_values(peaks, keyMap_closest, tables, feature, IdColumn,hm):
         values = __getValuesFromGETable(peaks, keyMap_closest, table, feature, IdColumn)
         valuesTab[:,i] = values
         hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i+1)]
-    hm.matrix.matrix = hm.matrix.matrix + valuesTab
+    hm.matrix.matrix = np.concatenate((hm.matrix.matrix, valuesTab[:,]), axis = 1)
     last_col = hm.matrix.sample_boundaries[-1]
     hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]
 
@@ -114,7 +114,7 @@ def __update_parameters(hm,length): ##XXX How????
         hm.parameters['body'].append(1000)
         hm.parameters['downstream'].append(0)
         hm.parameters['upstream'].append(0)
-        hm.parameters['ref point'].append(null)
+        hm.parameters['ref point'].append(None)
         hm.parameters['bin size'].append(10)
 
 def update_matrix_values(peaks, tables,feature,IdColumn,hm):
@@ -127,6 +127,7 @@ def update_matrix_values(peaks, tables,feature,IdColumn,hm):
         values = __getValuesFromTable(peaks, table, feature, IdColumn)
         valuesTab[:,i] = values
         hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i+1)]
-    hm.matrix.matrix = hm.matrix.matrix + valuesTab
+    hm.matrix.matrix = np.concatenate((hm.matrix.matrix, valuesTab[:,]), axis = 1)
     last_col = hm.matrix.sample_boundaries[-1]
     hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]
+    __update_parameters(hm,len(tables))

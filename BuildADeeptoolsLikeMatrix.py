@@ -8,7 +8,7 @@ import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
-from coordinates.parseTables import extract_ge_folchange_per_peak, find_closest_genes, parseMatrixRegions
+from coordinates.parseTables import extract_ge_folchange_per_peak, find_closest_genes, parseMatrixRegions, update_matrix_values
 from deeptools.heatmapper import heatmapper
 
 def parse_args():
