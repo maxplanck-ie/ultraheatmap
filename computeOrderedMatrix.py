@@ -72,6 +72,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        "-p",
                        dest="numberOfProcessors",
                        help="Number of processors to use.",
+                       type = int,
                        metavar="INT",
                        default=defaults["numberOfProcessors"])
    parser.add_argument("--refPoint",
