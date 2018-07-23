@@ -20,7 +20,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
    """
    Parse the arguments from the command line
    """
-   parser = argparse.ArgumentParser()
+   parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.")
    # Required arguments
    parser.add_argument("-b",
                        "--Signal",
@@ -72,6 +72,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        "-p",
                        dest="numberOfProcessors",
                        help="Number of processors to use.",
+                       type = int,
                        metavar="INT",
                        default=defaults["numberOfProcessors"])
    parser.add_argument("--refPoint",
@@ -128,10 +129,14 @@ def main():
    args = parser.parse_args()
    #2.1 modify config file if needed
    configfile=defaultconfigfile
-   add_diff(vars(args),configfile)
    if args.userconfig:
-      configfile= merge_dictionaries(configfile, args.userconfig)
+       with open(os.path.join(args.userconfig), 'r') as stream:
+            userconfigfile = yaml.load(stream)
+            configfile= merge_dictionaries(configfile, userconfigfile)
+   if args.referencePoint:
+       configfile["regionBodyLength"] = 0
 
+   add_diff(vars(args),configfile)
    #3. Generate an ordered region, using references only
    regions_list = args.regionOfInterest
    if args.refIndex:

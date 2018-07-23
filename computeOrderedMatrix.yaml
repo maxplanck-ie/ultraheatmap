@@ -23,6 +23,6 @@ sortUsing: "mean"    ####{mean,median,max,min,sum,region_length}
 unscaled5prime: 0
 unscaled3prime: 0
 regionsLabel:
-samplesLabel: 
+samplesLabel:
 refIndex:
 numberOfProcessors: 1

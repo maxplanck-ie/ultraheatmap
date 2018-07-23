@@ -31,7 +31,6 @@ def __compute_matrix(bw, bed, configfile, args): ##XXX What about metagene?
                   'unscaled 3 prime': configfile["unscaled3prime"]
    }
    hm = heatmapper()
-   dict = {'numberOfProcessors':configfile['numberOfProcessors']}
    hm.computeMatrix(score_file_list = bw, regions_file = bed, parameters = parameters, blackListFileName=None, verbose=False, allArgs=args)
    return hm
 
