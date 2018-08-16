@@ -65,18 +65,18 @@ def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
     return v
 
 
-def __getValuesFromTable(peaks, table, features, IdColumn):
-    v = []
-    for peak in peaks:
-        name = peak[3] #TODO
+def __getValuesFromNameTable(peaks, table, features, IdColumn):
+    v = np.empty((len(peaks), len(features)), dtype=float)
+    for i, peak in enumerate(peaks):
+        name = peak[3] 
         if name in table[IdColumn].values:
-           for feature in features:
+           for j, feature in enumerate(features):
                 x = float(table[table[IdColumn] == name][feature])
                 if np.isnan(x):
                      x = np.nan
-                v += [ x ]*len(features)
+                v[i,j] = x 
         else:
-           v += [ np.nan ]
+           v[i] = [ np.nan ]*len(features)
     return v
 
 def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm):
@@ -108,7 +108,7 @@ def parseMatrixRegions(regions):
                 all_regions.append([region[0],start, end, region[2], region[3], region[4], region[5]])
     return all_regions
 
-def __update_parameters(hm,length): ##XXX How????
+def __update_parameters(hm,length):
     """
 
     """
@@ -128,14 +128,16 @@ def update_matrix_values(peaks, tables,features, IdColumn,hm):
     correspoding values of each region, obtained from the tables, are added to the matrix values.
     """
     valuesTab = np.empty((len(peaks), len(tables)*len(features)), dtype=float)
+    print(valuesTab.shape)
     for i, table in enumerate(tables):
         table = parseTable(table)
-        values = __getValuesFromTable(peaks, table, features, IdColumn)
-        valuesTab[:,i] = values
-        hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i+1)]
+        values = __getValuesFromNameTable(peaks, table, features, IdColumn)
+        valuesTab[:,i*len(features):(i*len(features)+len(features))] = values
+        for feature in features:
+            hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i)+"_"+feature]
     hm.matrix.matrix = np.concatenate((hm.matrix.matrix, valuesTab[:,]), axis = 1)
-    last_col = hm.matrix.sample_boundaries[-1]
-    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]
+    current_last_col = hm.matrix.sample_boundaries[-1]
+    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+current_last_col for x in range(len(tables)*len(features))]
     __update_parameters(hm,len(tables)*len(features))
 
 def __read_tables_columns(tables, features):
