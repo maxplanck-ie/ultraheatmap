@@ -46,22 +46,20 @@ def extract_ge_folchange_per_peak(peaks, tables, closestMapping,features, IdColu
     Peaks=Peaks.sort()
     keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
     __update_matrix_values(peaks, keyMap_closest, tables,features,IdColumn,hm)
-    __update_parameters(hm,len(tables))
 
 def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
-    print(features)
-    v = []
-    for peak in peaks:
+    v = np.empty((len(peaks), len(features)), dtype=float)
+    for i, peak in enumerate(peaks):
         key = ';'.join(map(str,peak))
         value = keyMap_closest[key]
         if value in table[IdColumn].values:
-            for feature in features: #TODO Check if pd.dataframe has an inbuilt function to get discontiniuos columns
+            for j, feature in enumerate(features): #TODO Check if pd.dataframe has an inbuilt function to get discontiniuos columns
                 x = float(table[table[IdColumn] == value][feature])
                 if np.isnan(x):
                      x = np.nan
-                v += [ x ]*len(features)
+                v[i,j] = x
         else:
-            v += [ np.nan ]
+            v[i] = [ np.nan ]*len(features)
     return v
 
 
@@ -79,21 +77,24 @@ def __getValuesFromNameTable(peaks, table, features, IdColumn):
            v[i] = [ np.nan ]*len(features)
     return v
 
-def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm):
+def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm): #TODO two different update_value function can be merged into one, just need to an if / else over the arg.annotation
     """
 
     """
     assert len(keyMap_closest) == len(peaks)
-    valuesTab = np.empty((len(peaks), len(tables)), dtype=float)
+    valuesTab = np.empty((len(peaks), len(tables)*len(features)), dtype=float)
     print(tables)
     for i, table in enumerate(tables):
         table = parseTable(table)
         values = __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn)
-        valuesTab[:,i] = values
-        hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i+1)]
+        valuesTab[:,i*len(features):(i*len(features)+len(features))] = values
+        for feature in features:
+            hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i)+"_"+feature]
     hm.matrix.matrix = np.concatenate((hm.matrix.matrix, valuesTab[:,]), axis = 1)
-    last_col = hm.matrix.sample_boundaries[-1]
-    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+last_col for x in range(len(tables))]
+    current_last_col = hm.matrix.sample_boundaries[-1]
+    hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+current_last_col for x in range(len(tables)*len(features))]
+    __update_parameters(hm,len(tables)*len(features))
+
 
 
 
@@ -112,6 +113,7 @@ def __update_parameters(hm,length):
     """
 
     """
+    print(length)
     for i in range(length):
         hm.parameters['unscaled 5 prime'].append(0)
         hm.parameters['unscaled 3 prime'].append(0)
