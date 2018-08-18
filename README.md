@@ -35,7 +35,7 @@ For installation of the following packages, please check the project documentati
 * [pybedtools](https://daler.github.io/pybedtools/)  
 * [gffutils](https://pythonhosted.org/gffutils/installation.html)
 
-
+<!---
 ### Installation
 
 A step by step series of examples that tell you how to get a development env running
@@ -107,3 +107,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Hat tip to anyone whose code was used
 * Inspiration
 * etc
+-->
