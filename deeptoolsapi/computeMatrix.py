@@ -37,7 +37,8 @@ def __compute_matrix(bw, bed, configfile, args): ##XXX What about metagene?
 def sortbyreference(regions,refIndex,bigwigs,configfile, args):
     refList=[]
     for index in refIndex:
-        refList.append(bigwigs[int(index)])
+        assert(int(index) >= 1)
+        refList.append(bigwigs[int(index)-1])
     #only on the ref.ones
     ref_bw=" ".join(refList)
     hm = __compute_matrix(refList, regions, configfile, args)

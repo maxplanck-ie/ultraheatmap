@@ -25,4 +25,4 @@ unscaled3prime: 0
 regionsLabel:
 samplesLabel:
 refIndex:
-numberOfProcessors: 1
+numberOfProcessors: 5

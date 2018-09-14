@@ -61,7 +61,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
    parser.add_argument("--refIndex",
                        dest="refIndex",
                        nargs='+',
-                       help="Indices of bigwig files which pointed to the references. Several indices can be separated by space. Note that the numbers are zero based!",
+                       help="Indices of bigwig files which pointed to the references. Several indices can be separated by space. Note that indexing is one-based!",
                        default = defaults["refIndex"])
    parser.add_argument("--metagene",
                        dest="metagene",
