@@ -22,7 +22,7 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
    """
    parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.")
    # Required arguments
-   parser.add_argument("-b",
+   parser.add_argument("-S",
                        "--Signal",
                        dest="bigwigs",
                        nargs='+',
@@ -91,6 +91,10 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        'by spaces and quoted if a label itself'
                        'contains a space E.g. --samplesLabel label-1 "label 2"  ',
                         nargs='+')
+   parser.add_argument('--clusterBy',
+                       help='Defines a different mode for building the pre-clustering matrix',
+                       type=str,
+                       metavar="STR")
 
    return  parser
 
@@ -135,16 +139,25 @@ def main():
             configfile= merge_dictionaries(configfile, userconfigfile)
    if args.referencePoint:
        configfile["regionBodyLength"] = 0
-
+   pre_cluster_mode =""
+   boundries=[]
+   if args.clusterBy:
+       a,b=args.clusterBy.split(',')
+       if b is None:
+           pre_cluster_mode = 'scale-regions'
+       else:
+           pre_cluster_mode = 'reference-point'
+           boundries=[int(a),int(b)]
    add_diff(vars(args),configfile)
    #3. Generate an ordered region, using references only
    regions_list = args.regionOfInterest
    if args.refIndex:
-       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile, args)
+       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile, args, pre_cluster_mode, boundries)
        if os.path.getsize(configfile["outFileSortedRegions"]) > 0:
           regions_list = [configfile["outFileSortedRegions"]]
 
    #4.Build a matrix over all the samples
+
    hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile,args)
 
    matrix_output=os.path.join(args.matrixOutput)
