@@ -21,8 +21,8 @@ def __compute_matrix(bw, bed, configfile, args, pre_cluster_mode, boundries): ##
        downstream = boundries[1]
    elif pre_cluster_mode == 'scale-region': #TODO make them user defined values
        region_body = 1000
-       upstream = 500
-       downstream = 1500
+       upstream = 0
+       downstream = 0
    else:
        print(pre_cluster_mode)
        assert(pre_cluster_mode=="")

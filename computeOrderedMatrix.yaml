@@ -4,8 +4,8 @@ kmeans:
 hclust:
 userconfig:
 metagene: False
-beforeRegionStartLength: 500
-afterRegionStartLength: 1500
+beforeRegionStartLength: 0
+afterRegionStartLength: 0
 regionBodyLength: 1000 # 0 for reference-point 1000 for scale-regions
 binSize: 10
 referencePoint: #"center"
