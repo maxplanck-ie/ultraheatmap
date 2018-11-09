@@ -126,7 +126,7 @@ def main():
    # First part of the code is applied for all cases
    defaultconfigfile = {}
    #1. Read the config file
-   with open(os.path.join(code_dir, "computeOrderedMatrix.yaml"), 'r') as stream:
+   with open(os.path.join(os.path.dirname(code_dir), 'configs', "computeOrderedMatrix.yaml"), 'r') as stream:
      defaultconfigfile = yaml.load(stream)
    #2. Parse the arguments
    parser = parse_args(defaultconfigfile)
