@@ -5,10 +5,11 @@ import sys
 from pybedtools import BedTool
 import numpy as np
 import gffutils
+from gffannotator.gffannotator import GffAnnotator
 
 from coordinates.mapClosestGenes import keymap_from_closest_genes
 
-def find_closest_genes(peaks, annotation, featureType, filteredoutput, filename = None):
+def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput, referencePoint, filename = None):
     """
     Find the closest gene using bedtools.closest
     """
@@ -16,10 +17,14 @@ def find_closest_genes(peaks, annotation, featureType, filteredoutput, filename 
     Annotation = BedTool(annotation)
     Peaks=Peaks.sort()
     sites=Annotation.sort()
-    if featureType:
-        assert filteredoutput
-        __filter_annotation(filteredoutput, featureType, annotation)
-        sites=BedTool(filteredoutput).sort()
+    if annotationFeature:
+        filteredAnnotation = __filter_annotation(filteredoutput, annotationFeature, annotation,referencePoint)
+        sites=BedTool(filteredAnnotation).sort()
+    elif referencePoint:
+        filteredAnnotation = list()
+        for feature in gffutils.DataIterator(annotation):
+            filteredAnnotation.append(str(__get_reference_coordinate(feature, referencePoint)))
+        sites=BedTool(filteredAnnotation).sort()
     mapped=Peaks.closest(sites, t="first")
 
     if filename:
@@ -27,14 +32,30 @@ def find_closest_genes(peaks, annotation, featureType, filteredoutput, filename 
 
     return(mapped)
 
-def __filter_annotation(filteredoutput, featureType, annotation):
+def __get_reference_coordinate(feature, referencePoint):
+    if (feature.strand == '+' and referencePoint =='TSS') or (feature.strand == '-' and referencePoint =='TES'):
+        feature.end = feature.start
+    else:
+        assert(feature.strand == '-' and referencePoint == 'TSS') or (feature.strand == '+' and referencePoint == 'TES')
+        feature.start=feature.end
+    return feature
+
+def __filter_annotation(filteredoutput, annotationFeature, annotation, referencePoint):
    """
    filters annotation for the gene type of the interest
    """
-   with open(filteredoutput,"w") as filteredAnnotation:
-        for feature in gffutils.DataIterator(annotation):
-            if feature.featuretype == featureType:
-               filteredAnnotation.write(str(feature)+'\n')
+   if filteredoutput:
+       fo = open(filteredoutput,"w")
+   filteredAnnotation = list()
+   for feature in gffutils.DataIterator(annotation):
+           if feature.featuretype == annotationFeature:
+              if filteredoutput:
+                  fo.write(str(feature)+'\n')
+              if referencePoint:
+                  feature = __get_reference_coordinate(feature, referencePoint)
+              filteredAnnotation.append(str(feature))
+
+   return filteredAnnotation
 
 def extract_ge_folchange_per_peak(peaks, tables, closestMapping,features, IdColumn,hm):
     """
@@ -52,7 +73,7 @@ def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
     for i, peak in enumerate(peaks):
         key = ';'.join(map(str,peak))
         value = keyMap_closest[key]
-        if value in table[IdColumn].values:
+        if value in table[IdColumn].values: #value is geneId
             for j, feature in enumerate(features): #TODO Check if pd.dataframe has an inbuilt function to get discontiniuos columns
                 x = float(table[table[IdColumn] == value][feature])
                 if np.isnan(x):
@@ -66,13 +87,13 @@ def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
 def __getValuesFromNameTable(peaks, table, features, IdColumn):
     v = np.empty((len(peaks), len(features)), dtype=float)
     for i, peak in enumerate(peaks):
-        name = peak[3] 
+        name = peak[3]
         if name in table[IdColumn].values:
            for j, feature in enumerate(features):
                 x = float(table[table[IdColumn] == name][feature])
                 if np.isnan(x):
                      x = np.nan
-                v[i,j] = x 
+                v[i,j] = x
         else:
            v[i] = [ np.nan ]*len(features)
     return v
@@ -147,8 +168,5 @@ def __read_tables_columns(tables, features):
          df = parseTable(table)
          for feature in features:
              if feature not in df.columns:
-                sys.stderr.write("feature "+feature+" doesn't exist in table" + table) 
+                sys.stderr.write("feature "+feature+" doesn't exist in table" + table)
                 exit(1)
-         
-   
-
