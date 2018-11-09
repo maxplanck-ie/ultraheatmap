@@ -5,7 +5,6 @@ import sys
 from pybedtools import BedTool
 import numpy as np
 import gffutils
-from gffannotator.gffannotator import GffAnnotator
 
 from coordinates.mapClosestGenes import keymap_from_closest_genes
 
