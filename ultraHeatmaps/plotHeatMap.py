@@ -36,5 +36,5 @@ def __plot_heatmap(hm,indexList, configfile):
    if configfile["sortRegions"] != 'no':
         hm.matrix.sort_groups(sort_using=configfile["sortUsing"],sort_method=configfile["sortRegions"],sample_list=indexList)
 
-   if  configfile["outFileSortedRegions"]
-        hm.save_BED(open(configfile["outFileSortedRegions"], "w"))
+   assert(configfile["outFileSortedRegions"])
+   hm.save_BED(open(configfile["outFileSortedRegions"], "w"))
