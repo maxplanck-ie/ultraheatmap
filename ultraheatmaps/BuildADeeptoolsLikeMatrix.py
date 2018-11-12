@@ -108,5 +108,5 @@ def main():
    #save the joint matrix obtained from either of cases
    hm.save_matrix(os.path.join(args.outputMatrix))
 
-if __name__ == "__main__":
-   main()
+#if __name__ == "__main__":
+#   main()
