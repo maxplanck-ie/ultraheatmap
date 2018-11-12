@@ -15,7 +15,7 @@ These instructions will get you a copy of ultraheatmaps up and running on your l
 
 The Prerequisites can be found in requirements.yaml
 
-####Installation
+###Installation
 
 First, create a new conda environment with all the Prerequisites by running the following command line:
 
