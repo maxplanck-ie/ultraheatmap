@@ -164,5 +164,5 @@ def main():
    hm.save_matrix(matrix_output)
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+    #main()
