@@ -1,4 +1,5 @@
-#from distutils.core import setup
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, Extension, find_packages
 from setuptools.command.sdist import sdist as _sdist
 from setuptools.command.install import install as _install
@@ -20,6 +21,7 @@ setup(
     packages=find_packages(),
     scripts=['bin/computeOrderedMatrix', 'bin/BuildADeeptoolsLikeMatrix'],
     long_description=open('README.md').read(),
+    include_package_data=True,
     # install_requires=[ #TODO
     #     "deeptools=3.0.1",
     #     "pybedtools=0.7.10",
