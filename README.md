@@ -1,7 +1,5 @@
 # ultraheatmap
 
-##TODO!!
-
 ultraheatmaps facilitates the production of [deepTools](https://github.com/deeptools/deepTools)
 heatmaps. The heatmaps typically show signal at genomic regions, which can be
 appended by orthogonal data, like associated gene expression. ultraheatmap
@@ -15,29 +13,34 @@ These instructions will get you a copy of ultraheatmaps up and running on your l
 
 ### Prerequisites
 
-The program is written and tested in python3 and requires the following packages
-```
-import argparse
-import csv
-import deeptoolsapi
-import gffutils
-import numpy
-import os
-import pandas
-import pybedtools
-import subprocess
-import sys
-import unittest
-import yaml
-```
+The Prerequisites can be found in requirements.yaml
 
-For installation of the following packages, please check the project documentation
+####Installation
 
-* [deeptoolsapi](https://github.com/deeptools/deepTools)
-* [pybedtools](https://daler.github.io/pybedtools/)  
-* [gffutils](https://pythonhosted.org/gffutils/installation.html)
+First, create a new conda environment with all the Prerequisites by running the following command line:
+
+              conda env create -f requirements.yaml
+
+Then activate the environment by:
+              source activate ultraheatmap
+
+To install the program in this environment run:
+              python setup.py install
+
+Now, you have already have the program installed and can access each of the modules by calling them. Try
+
+              computeOrderedMatrix -h
+
+or
+
+              BuildADeeptoolsLikeMatrix -h
+
+To terminate the environment run:
+
+              source deactivate
 
 <!---
+
 ### Installation
 
 A step by step series of examples that tell you how to get a development env running
