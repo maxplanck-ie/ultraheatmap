@@ -9,11 +9,10 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__
 
 
 #import necessary modules
-import deeptoolsapi.computeMatrix as cm
+import ultraHeatmaps.computeMatrix as cm
 
 #Code directory:
-code_dir = os.path.dirname(os.path.realpath(__file__))
-
+configDir = os.path.dirname(os.path.realpath(__file__))
 #Parse entered arguments
 def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "metagene":None, "userconfig":None, "outFileSortedRegions": None, "refIndex" : None, "numberOfProcessors" : None}):
 
@@ -126,7 +125,7 @@ def main():
    # First part of the code is applied for all cases
    defaultconfigfile = {}
    #1. Read the config file
-   with open(os.path.join(code_dir, "computeOrderedMatrix.yaml"), 'r') as stream:
+   with open(os.path.join(configDir, 'configs' ,"computeOrderedMatrix.yaml"), 'r') as stream:
      defaultconfigfile = yaml.load(stream)
    #2. Parse the arguments
    parser = parse_args(defaultconfigfile)
@@ -152,9 +151,12 @@ def main():
    #3. Generate an ordered region, using references only
    regions_list = args.regionOfInterest
    if args.refIndex:
+       if configfile["outFileSortedRegions"] is None:
+           path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
+           configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
        cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile, args, pre_cluster_mode, boundries)
-       if os.path.getsize(configfile["outFileSortedRegions"]) > 0:
-          regions_list = [configfile["outFileSortedRegions"]]
+       assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
+       regions_list = [configfile["outFileSortedRegions"]]
 
    #4.Build a matrix over all the samples
 
@@ -164,5 +166,5 @@ def main():
    hm.save_matrix(matrix_output)
 
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+    #main()
