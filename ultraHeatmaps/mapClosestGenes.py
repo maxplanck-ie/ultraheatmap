@@ -13,7 +13,7 @@ def __keymap_from_bed_and_gff(peaks, gff, key_definition = 'gene_id'):
     assert (len(peaks) == len(gff)), ("{} and {} are not the same size").format(len(peaks), len(gff))
     keyMap = defaultdict(lambda: [])
     for i in range(0,len(peaks)):
-        ckey = ';'.join(peaks[i][0:6])
+        ckey = ';'.join(peaks[i][0:7]) ##XXX shall we keep the number hard coded??
         cval = gff[i][key_definition]
         keyMap[ckey] = cval
 

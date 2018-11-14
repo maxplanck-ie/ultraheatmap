@@ -1,6 +1,5 @@
 .gitignore
-__init__.py
-__pycache__
+*__pycache__*
 *.pyc
 test.py
 *.swp
@@ -9,3 +8,5 @@ data/
 .ipynb_*
 *.ipynb
 sandbox
+test_*
+*.pyc
