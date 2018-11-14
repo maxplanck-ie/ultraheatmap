@@ -33,7 +33,7 @@ To install the program in this environment:
 
               python setup.py install
 
-from the ultraheatmap directory. Now, you have already the program installed and can access each of the modules by calling them. Try
+from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
 
               computeOrderedMatrix -h
 
