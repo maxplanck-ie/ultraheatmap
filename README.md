@@ -22,9 +22,11 @@ First, create a new conda environment with all the Prerequisites by running the 
               conda env create -f requirements.yaml
 
 Then activate the environment by:
+
               source activate ultraheatmap
 
 To install the program in this environment run:
+
               python setup.py install
 
 Now, you have already have the program installed and can access each of the modules by calling them. Try
