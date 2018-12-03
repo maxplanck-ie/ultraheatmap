@@ -53,7 +53,6 @@ def __compute_matrix(bw, bed, configfile, args, pre_cluster_mode, boundries): ##
                   'unscaled 3 prime': configfile["unscaled3prime"]
    }
    hm = heatmapper()
-   print(bw)
    hm.computeMatrix(score_file_list = bw, regions_file = bed, parameters = parameters, blackListFileName=None, verbose=False, allArgs=args)
    return hm
 
@@ -64,7 +63,6 @@ def sortbyreference(regions,refIndex,bigwigs,configfile, args, pre_cluster_mode,
         refList.append(bigwigs[int(index)-1])
     #only on the ref.ones
     ref_bw=" ".join(refList)
-    print(ref_bw)
     hm = __compute_matrix(refList, regions, configfile, args, pre_cluster_mode, boundries)
     __plot_heatmap(hm, refIndex, configfile)
 
