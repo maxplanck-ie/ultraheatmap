@@ -21,15 +21,19 @@ First, create a new conda environment with all the Prerequisites by running the 
 
               conda env create -f requirements.yaml
 
-Then activate the environment by:
+Afterwards, get the source code:
+
+             git clone https://github.com/maxplanck-ie/ultraheatmap.git
+
+Then activate the environment:
 
               source activate ultraheatmap
 
-To install the program in this environment run:
+To install the program in this environment:
 
               python setup.py install
 
-Now, you have already have the program installed and can access each of the modules by calling them. Try
+from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
 
               computeOrderedMatrix -h
 
