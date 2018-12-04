@@ -90,8 +90,10 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        'by spaces and quoted if a label itself'
                        'contains a space E.g. --samplesLabel label-1 "label 2"  ',
                         nargs='+')
-   parser.add_argument('--clusterBy',
-                       help='Defines a different mode for building the pre-clustering matrix',
+   parser.add_argument('--preClusterMode',
+                       dest = "preClusterMode",
+                       help='Defines a different mode for building the pre-clustering matrix. If set to 0,0 pre-clustering'
+                       ' matrix will be scaled-region if set to A,B it is set to reference-point with A base downstream and B bases upstream.',
                        type=str,
                        metavar="STR")
 
@@ -138,11 +140,15 @@ def main():
             configfile= merge_dictionaries(configfile, userconfigfile)
    if args.referencePoint:
        configfile["regionBodyLength"] = 0
+       if configfile["beforeRegionStartLength"] == 0:
+          configfile["beforeRegionStartLength"] = 1000
+       if configfile["afterRegionStartLength"] == 0:
+          configfile["afterRegionStartLength"] = 1000
    pre_cluster_mode =""
    boundries=[]
-   if args.clusterBy:
-       a,b=args.clusterBy.split(',')
-       if b is None:
+   if args.preClusterMode:
+       a,b=args.preClusterMode.split(',')
+       if b is '0' and a is '0':
            pre_cluster_mode = 'scale-regions'
        else:
            pre_cluster_mode = 'reference-point'

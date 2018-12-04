@@ -27,11 +27,6 @@ def __plot_heatmap(hm,indexList, configfile):
                          "There will likely be an error message from matplotlib regarding this "
                          "below.\n".format(hm.matrix.group_labels[problem[0]]))
 
-   if configfile["regionsLabel"]:
-        hm.matrix.set_group_labels(["regionsLabel"])
-
-   if configfile["samplesLabel"] and len(configfile["samplesLabel"]):
-        hm.matrix.set_sample_labels(args.samplesLabel)
 
    if configfile["sortRegions"] != 'no':
         hm.matrix.sort_groups(sort_using=configfile["sortUsing"],sort_method=configfile["sortRegions"],sample_list=indexList)

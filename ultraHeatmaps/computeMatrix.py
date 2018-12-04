@@ -14,27 +14,30 @@ def __compute_matrix(bw, bed, configfile, args, pre_cluster_mode, boundries): ##
    region_body =""
    upstream = None
    downstream = None
+   referencePoint = None
    if pre_cluster_mode == 'reference-point':
        region_body = 0
        assert(len(boundries)==2)
        upstream = boundries[0]
        downstream = boundries[1]
-   elif pre_cluster_mode == 'scale-region': #TODO make them user defined values
+       referencePoint = 'TSS'
+   elif pre_cluster_mode == 'scale-regions':
        region_body = 1000
        upstream = 0
        downstream = 0
    else:
-       print(pre_cluster_mode)
        assert(pre_cluster_mode=="")
        assert(boundries==[])
        region_body = configfile["regionBodyLength"]
        upstream = configfile["beforeRegionStartLength"]
        downstream = configfile["afterRegionStartLength"]
+       referencePoint = configfile["referencePoint"]
+
    parameters = {'upstream': upstream,
                   'downstream': downstream,
                   'body': region_body,
                   'bin size': configfile["binSize"],
-                  'ref point': configfile["referencePoint"],
+                  'ref point': referencePoint,
                   'verbose': configfile["verbose"],
                   'bin avg type': configfile["averageTypeBins"],
                   'missing data as zero': configfile["missingDataAsZero"],
@@ -68,4 +71,12 @@ def computefinalmatrix(regions, bigwigs, configfile, args):
     pre_cluster_mode =""
     boundries=[]
     hm = __compute_matrix(bigwigs, regions, configfile, args, pre_cluster_mode, boundries)
+
+    if configfile["samplesLabel"] and len(configfile["samplesLabel"]):
+         hm.matrix.set_sample_labels(args.samplesLabel)
+
+    if configfile["regionsLabel"]:
+         hm.matrix.set_group_labels(configfile["regionsLabel"])
+
+
     return hm
