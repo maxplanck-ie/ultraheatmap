@@ -10,3 +10,5 @@ data/
 sandbox
 test_*
 *.pyc
+build
+*.egg-info
