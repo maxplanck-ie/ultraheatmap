@@ -22,50 +22,48 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
    parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.")
    # Required arguments
    parser.add_argument("-S",
-                       "--Signal",
+                       "--scoreFileName",
                        dest="bigwigs",
                        nargs='+',
-                       help="All the Bigwig files in spaced format",
+                       help="Scores files in bigwig format as defined by deepTools computeMatrix",
                        required=True)
    parser.add_argument("-R",
-                       "--regions",
+                       "--regionsFileName",
                        dest="regionOfInterest",
                        nargs='+',
-                       help="All regions of interest, space-separated .bed/.gtf files",
+                       help="Regios files in BED or GTF format as defined by deepTools computeMatrix",
                        required=True)
-   parser.add_argument("-om",
-                    "--matrixOutput",
+   parser.add_argument("-o",
+                    "--outFileName",
                     dest="matrixOutput",
-                    help="the output matrix",
+                    help="deepTools matrix clustered by selected sample(s)",
                     required=True)
-
    #optional arguments
-   parser.add_argument("-os",
-                       "--sortedOutput",
+   parser.add_argument("--outFileSortedRegions",
                        dest="outFileSortedRegions",
-                       help="the ordered region file (.bed)",
+                       help="Filename of the ordered region file (BED format) as defined by deepTools computeMatrix",
                        default = defaults["outFileSortedRegions"])
    parser.add_argument("--kmeans",
                        dest="kmeans",
                        metavar="INT",
                        type=int,
-                       help="number of k-means clusters",
+                       help="Number of clusters to compute using K-means as defined by deepTools plotHeatmap",
                        default=defaults["kmeans"])
    parser.add_argument("--hclust",
                        dest="hclust",
                        metavar="INT",
                        type=int,
-                       help="number of clusters in hierarchical clustering",
+                       help="Number of clusters to compute using hierarchical clustering as defined by deepTools plotHeatmap",
                        default=defaults["hclust"])
    parser.add_argument("--refIndex",
                        dest="refIndex",
                        nargs='+',
-                       help="Indices of bigwig files which pointed to the references. Several indices can be separated by space. Note that indexing is one-based!",
+                       help="Indices of bigwig files which pointed to the references, space-separated. Note that indexing is one-based!",
                        default = defaults["refIndex"])
    parser.add_argument("--metagene",
                        dest="metagene",
                        action="store_true",
-                       help="when region is .GTF or .BED12 and mode is scale-regions",
+                       help="Use metagene as defined by deepTools computeMatrix. If file is GTF, only defined feature (exon, cds) is considered",
                        default=defaults["metagene"])
    parser.add_argument("--numberOfProcessors",
                        "-p",
@@ -96,7 +94,6 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        ' matrix will be scaled-region if set to A,B it is set to reference-point with A base downstream and B bases upstream.',
                        type=str,
                        metavar="STR")
-
    return  parser
 
 
