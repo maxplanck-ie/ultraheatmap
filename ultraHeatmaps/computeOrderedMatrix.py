@@ -177,8 +177,8 @@ def main():
           configfile["afterRegionStartLength"] = 1000
    pre_cluster_mode =""
    boundries=[]
-   if args.preClusterMode:
-       a,b=args.preClusterMode.split(',')
+   if args.cluster_mode:
+       a,b=args.cluster_mode.split(',')
        if b is '0' and a is '0':
            pre_cluster_mode = 'scale-regions'
        else:
