@@ -121,10 +121,10 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                         nargs='+')
    parser.add_argument('--cluster_mode',
                        dest = "cluster_mode",
-                       help='Cluster by default is performed in the same mode '
-                       '(reference-point/scale-regions). Cluster by'
-                       '- scale-regions use \'0,0\' \n'
-                       '- reference-point use \'A,B\', where A,B are up/downstream flanks [nt]',
+                       help='The cluster is by default performed in the same way '
+                       'as the final matrix same mode (reference-point/scale-regions). '
+                       'To compute the clustering for \'scale-regions\', use \'0,0\' '
+                       'for \'reference-point\', use \'A,B\', where A,B are up/downstream flanks [nt].',
                        type=str,
                        metavar="STR")
 
