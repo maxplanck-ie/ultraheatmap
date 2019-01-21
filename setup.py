@@ -19,7 +19,7 @@ class install(_install):
 setup(
     name='ultraHeatmaps',
     packages=find_packages(),
-    scripts=['bin/computeOrderedMatrix', 'bin/BuildADeeptoolsLikeMatrix'],
+    scripts=['bin/computeOrderedMatrix', 'bin/AddFeatureToMatrix'],
     long_description=open('README.md').read(),
     include_package_data=True,
     cmdclass={'sdist': sdist, 'install': install}

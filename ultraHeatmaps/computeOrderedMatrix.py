@@ -19,37 +19,46 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
    """
    Parse the arguments from the command line
    """
-   parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.")
+   parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
    # Required arguments
    parser.add_argument("-S",
                        "--Signal",
                        dest="bigwigs",
                        nargs='+',
-                       help="All the Bigwig files in spaced format",
+                       help="bigwig files, the ordered matrix is computed"
+                       "from.",
                        required=True)
    parser.add_argument("-R",
                        "--regions",
                        dest="regionOfInterest",
                        nargs='+',
-                       help="All regions of interest, space-separated .bed/.gtf files",
+                       help="BED files definig the genomic regions of the matrix."
+                       "Multiple files can be provided, but the per group information"
+                       "will be lost due to the clustering",
                        required=True)
-   parser.add_argument("-om",
-                    "--matrixOutput",
-                    dest="matrixOutput",
-                    help="the output matrix",
-                    required=True)
+   parser.add_argument("-o",
+                       "--outFileName",
+                       dest="matrixOutput",
+                       help="Matrix clustered by the given reference samples",
+                       required=True)
 
    #optional arguments
-   parser.add_argument("-os",
-                       "--sortedOutput",
+   parser.add_argument("--outFileSortedRegions",
                        dest="outFileSortedRegions",
-                       help="the ordered region file (.bed)",
+                       help='[deepTools doc] File name in which the regions are '
+                       'saved after skiping zeros or min/max threshold values. '
+                       'The order of the regions in the file follows the sorting '
+                       'order selected. This is useful, for example, to generate '
+                       'other heatmaps keeping the sorting of the first heatmap. '
+                       'Example: Heatmap1sortedRegions.bed',
                        default = defaults["outFileSortedRegions"])
+
    parser.add_argument("--kmeans",
                        dest="kmeans",
                        metavar="INT",
                        type=int,
-                       help="number of k-means clusters",
+                       help="number of clusters in k-means clustering",
                        default=defaults["kmeans"])
    parser.add_argument("--hclust",
                        dest="hclust",
@@ -57,43 +66,65 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        type=int,
                        help="number of clusters in hierarchical clustering",
                        default=defaults["hclust"])
-   parser.add_argument("--refIndex",
+
+   parser.add_argument( '-i',
+                        '--index',
+                        "--referenceSampleIndex",
                        dest="refIndex",
                        nargs='+',
-                       help="Indices of bigwig files which pointed to the references. Several indices can be separated by space. Note that indexing is one-based!",
-                       default = defaults["refIndex"])
+                       help='Index, 1-based, to define the reference samples. The '
+                       'reference samples will be used for the clustering of the '
+                       'matrix, before all samples are added. Space-separated',
+                       default = defaults["refIndex"],
+                       required=True)
+
    parser.add_argument("--metagene",
                        dest="metagene",
                        action="store_true",
-                       help="when region is .GTF or .BED12 and mode is scale-regions",
+                       help='[deepTools doc] When either a BED12 or GTF file are '
+                       'used to provide regions, perform the computation on the '
+                       'merged exons, rather than using the genomic interval '
+                       'defined by the 5-prime and 3-prime most transcript bound '
+                       '(i.e., columns 2 and 3 of a BED file). If a BED3 or BED6 '
+                       'file is used as input, then columns 2 and 3 are used as an '
+                        'exon.',
                        default=defaults["metagene"])
-   parser.add_argument("--numberOfProcessors",
-                       "-p",
+   parser.add_argument("-p",
+                       "--numberOfProcessors",
                        dest="numberOfProcessors",
-                       help="Number of processors to use.",
+                       help='[deepTools doc] Number of processors to use. Type '
+                       '"max/2" to use half the maximum number of processors or '
+                       '"max" to use all available processors.',
                        type = int,
                        metavar="INT",
                        default=defaults["numberOfProcessors"])
-   parser.add_argument("--refPoint",
+   parser.add_argument("--referencePoint",
                        dest="referencePoint",
                        type=str,
-                       help="Reference point for plotting can be set to TSS, TES or center",
+                       help='[deepTools doc] The reference point for the plotting could be either'
+                        'the region start (TSS), the region end (TES) or the'
+                        'center of the region. Note that regardless of what you'
+                        'specify, plotHeatmap/plotProfile will default to using'
+                        '"TSS" as the label.',
                        default=defaults["referencePoint"])
    parser.add_argument("--config",
                        dest="userconfig",
-                       help="this will be added to the dieafult config file",
+                       help="Added to the default configuration, overwrites if "
+                       "necessary.",
                        default=defaults["userconfig"])
    parser.add_argument('--samplesLabel',
-                       help='Labels for the samples. This will then be passed to plotHeatmap and plotProfile. The '
-                       'default is to use the file name of the '
-                       'sample. The sample labels should be separated '
-                       'by spaces and quoted if a label itself'
-                       'contains a space E.g. --samplesLabel label-1 "label 2"  ',
+                       help='[deepTools doc] Labels for the samples. This will then be passed to '
+                       'plotHeatmap and plotProfile. The default is to use the '
+                       'file name of the sample. The sample labels should be '
+                       ' separated by spaces and quoted if a label itself'
+                       'contains a space E.g. --samplesLabel label-1 "label 2"',
                         nargs='+')
-   parser.add_argument('--preClusterMode',
-                       dest = "preClusterMode",
-                       help='Defines a different mode for building the pre-clustering matrix. If set to 0,0 pre-clustering'
-                       ' matrix will be scaled-region if set to A,B it is set to reference-point with A base downstream and B bases upstream.',
+   parser.add_argument('--cluster_mode',
+                       dest = "cluster_mode",
+                       help='The cluster is by default performed in the same way '
+                       'as the final matrix same mode (reference-point/scale-regions). '
+                       'To compute the clustering for \'scale-regions\', use \'0,0\' '
+                       'for \'reference-point\', use \'A,B\', where A,B are up/downstream flanks [nt].',
                        type=str,
                        metavar="STR")
 
@@ -146,8 +177,8 @@ def main():
           configfile["afterRegionStartLength"] = 1000
    pre_cluster_mode =""
    boundries=[]
-   if args.preClusterMode:
-       a,b=args.preClusterMode.split(',')
+   if args.cluster_mode:
+       a,b=args.cluster_mode.split(',')
        if b is '0' and a is '0':
            pre_cluster_mode = 'scale-regions'
        else:
@@ -165,8 +196,7 @@ def main():
        regions_list = [configfile["outFileSortedRegions"]]
 
    #4.Build a matrix over all the samples
-
-   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile,args)
+   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile, args)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)
