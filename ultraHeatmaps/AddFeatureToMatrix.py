@@ -15,7 +15,7 @@ def parse_args():
   """
 
   """
-  parser=argparse.ArgumentParser()
+  parser=argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   #required argumnets:
   parser.add_argument("--matrix",
                       "-m",
