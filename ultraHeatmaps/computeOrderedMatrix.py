@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import yaml
+import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
@@ -14,73 +15,83 @@ import ultraHeatmaps.computeMatrix as cm
 #Code directory:
 configDir = os.path.dirname(os.path.realpath(__file__))
 #Parse entered arguments
-def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "metagene":None, "userconfig":None, "outFileSortedRegions": None, "refIndex" : None, "numberOfProcessors" : None}):
+def parse_args(defaults={}):
 
    """
    Parse the arguments from the command line
    """
-   parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.")
+   parser = argparse.ArgumentParser(description = "The program clusters regions and makes a matrix from the ordered regions.",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
    # Required arguments
    parser.add_argument("-S",
-                       "--Signal",
+                       "--scoreFileName",
                        dest="bigwigs",
                        nargs='+',
-                       help="All the Bigwig files in spaced format",
-                       required=True)
+                       help="bigwig files, the ordered matrix is computed"
+                       "from.",required=True)
    parser.add_argument("-R",
-                       "--regions",
+                       "--regionsFileName",
                        dest="regionOfInterest",
                        nargs='+',
-                       help="All regions of interest, space-separated .bed/.gtf files",
+                       help="BED files definig the genomic regions of the matrix."
+                       "Multiple files can be provided, but the per group information"
+                       "will be lost due to the clustering",
                        required=True)
-   parser.add_argument("-om",
-                    "--matrixOutput",
-                    dest="matrixOutput",
-                    help="the output matrix",
-                    required=True)
+   parser.add_argument("-o",
+                       "--outFileName",
+                       dest="matrixOutput",
+                       help="Matrix clustered by the given reference samples",
+                       required=True)
+
+   parser.add_argument( "-i",
+                        "--index",
+                        "--referenceSampleIndex",
+                        dest="refIndex",
+                        nargs='+',
+                        help='Index, 1-based, to define the reference samples. The '
+                        'reference samples will be used for the clustering of the '
+                        'matrix, before all samples are added. Space-separated',
+                        required=True)
 
    #optional arguments
-   parser.add_argument("-os",
-                       "--sortedOutput",
+   parser.add_argument("-p",
+                       "--numberOfProcessors",
+                       dest="numberOfProcessors",
+                       help='[deepTools doc] Number of processors to use. Type '
+                       '"max/2" to use half the maximum number of processors or '
+                       '"max" to use all available processors.',
+                       type = int,
+                       metavar="INT",
+                       default=1)
+
+   parser.add_argument("--outFileSortedRegions",
                        dest="outFileSortedRegions",
-                       help="the ordered region file (.bed)",
-                       default = defaults["outFileSortedRegions"])
+                       help='[deepTools doc] File name in which the regions are '
+                       'saved after skiping zeros or min/max threshold values. '
+                       'The order of the regions in the file follows the sorting '
+                       'order selected. This is useful, for example, to generate '
+                       'other heatmaps keeping the sorting of the first heatmap. '
+                       'Example: Heatmap1sortedRegions.bed',
+                       default = None)
+
    parser.add_argument("--kmeans",
                        dest="kmeans",
                        metavar="INT",
                        type=int,
-                       help="number of k-means clusters",
-                       default=defaults["kmeans"])
+                       help="number of clusters in k-means clustering",
+                       default=None)
+
    parser.add_argument("--hclust",
                        dest="hclust",
                        metavar="INT",
                        type=int,
-                       help="number of clusters in hierarchical clustering",
-                       default=defaults["hclust"])
-   parser.add_argument("--refIndex",
-                       dest="refIndex",
-                       nargs='+',
-                       help="Indices of bigwig files which pointed to the references. Several indices can be separated by space. Note that indexing is one-based!",
-                       default = defaults["refIndex"])
-   parser.add_argument("--metagene",
-                       dest="metagene",
-                       action="store_true",
-                       help="when region is .GTF or .BED12 and mode is scale-regions",
-                       default=defaults["metagene"])
-   parser.add_argument("--numberOfProcessors",
-                       "-p",
-                       dest="numberOfProcessors",
-                       help="Number of processors to use.",
-                       type = int,
-                       metavar="INT",
-                       default=defaults["numberOfProcessors"])
-   parser.add_argument("--refPoint",
-                       dest="referencePoint",
-                       type=str,
-                       help="Reference point for plotting can be set to TSS, TES or center",
-                       default=defaults["referencePoint"])
+                       help="Number of clusters to compute using hierarchical clustering as defined by deepTools plotHeatmap",
+                       default=None)
+
+
    parser.add_argument("--config",
                        dest="userconfig",
+<<<<<<< HEAD
                        help="this will be added to the dieafult config file",
                        default=defaults["userconfig"])
    parser.add_argument('--samplesLabel',
@@ -96,6 +107,12 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        ' matrix will be scaled-region if set to A,B it is set to reference-point with A base downstream and B bases upstream.',
                        type=str,
                        metavar="STR")
+=======
+                       help="Added to the default configuration, overwrites if "
+                       "necessary.",
+                       default=None)
+
+>>>>>>> doc_new
 
    return  parser
 
@@ -138,6 +155,7 @@ def main():
        with open(os.path.join(args.userconfig), 'r') as stream:
             userconfigfile = yaml.load(stream)
             configfile= merge_dictionaries(configfile, userconfigfile)
+<<<<<<< HEAD
    if args.referencePoint:
        configfile["regionBodyLength"] = 0
        if configfile["beforeRegionStartLength"] == 0:
@@ -154,23 +172,26 @@ def main():
            pre_cluster_mode = 'reference-point'
            boundries=[int(a),int(b)]
    add_diff(vars(args),configfile)
+=======
+   configfile= merge_dictionaries(configfile, vars(args))
+
+   configfile['numberOfProcessors'] = args.numberOfProcessors
+
+>>>>>>> doc_new
    #3. Generate an ordered region, using references only
-   regions_list = args.regionOfInterest
-   if args.refIndex:
-       if configfile["outFileSortedRegions"] is None:
-           path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
-           configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
-       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile, args, pre_cluster_mode, boundries)
-       assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
-       regions_list = [configfile["outFileSortedRegions"]]
+   if configfile["outFileSortedRegions"] is None:
+       path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
+       configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
+   
+   cm.sortbyreference(configfile["regionOfInterest"], configfile["bigwigs"], configfile["refIndex"], configfile)
+   assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
 
    #4.Build a matrix over all the samples
-
-   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile,args)
+   hm = cm.computefinalmatrix(configfile["outFileSortedRegions"], configfile["bigwigs"], configfile)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)
 
 
-#if __name__ == "__main__":
-    #main()
+if __name__ == "__main__":
+    main()

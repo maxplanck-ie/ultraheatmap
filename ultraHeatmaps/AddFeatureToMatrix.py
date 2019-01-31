@@ -5,17 +5,41 @@ import sys
 import argparse
 import yaml
 import pandas as pd
+import textwrap
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
 from ultraHeatmaps.parseTables import extract_ge_folchange_per_peak, find_closest_genes, parseMatrixRegions, update_matrix_values, __read_tables_columns
 from deeptools.heatmapper import heatmapper
 
+
+class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    pass
+
 def parse_args():
   """
 
   """
-  parser=argparse.ArgumentParser()
+
+  desc = textwrap.dedent('''
+    usage example:
+    \tAddFeatureToMatrix -m <deepTools matrix> --output <combined deepTools matrix>
+    \t\t--tables <tsv>
+    \t\t--IDcolummn <name of id column>
+    \t\t--Features <name of score column>
+
+    The TSV is expected to contain header and minimum of two columns,
+    an ID column and a value column.
+    - ID column: name of region as in BED file used for compute[Ordered]Matrix
+    - Score column: the score column that is added to the matrix
+
+    If the closest gene has to be identified, an annotation GTF is expected,
+    and the *ID column* needs to be the gene ID, as used in the annotation GTF.
+
+
+    ''')
+  parser=argparse.ArgumentParser(description = desc, formatter_class=CustomFormatter)
+
   #required argumnets:
   parser.add_argument("--matrix",
                       "-m",
@@ -39,25 +63,6 @@ def parse_args():
                       required = True)
 
   #optional arguments
-  parser.add_argument("--annotationFeature",
-                      "-F",
-                      dest="annotationFeature",
-                      type=str,
-                      help="annotation file can be filtered by a feature such as gene, exon or transcript",
-                      default= None)
-  parser.add_argument("--annotationOutput",
-                      "-oa",
-                      dest="annotationOutput",
-                      type=str,
-                      help="saving filtered annotation file if --annotationFeature",
-                      default= None)
-  parser.add_argument("--annotation",
-                      "-a",
-                      dest="annotation",
-                      type=str,
-                      metavar="STR",
-                      default = None)
-
   parser.add_argument("--Features",
                       "-f",
                       dest="Features",
@@ -71,6 +76,26 @@ def parse_args():
                       help="name of the column includes ids/names",
                       default="GeneID")
 
+
+  parser.add_argument("--annotation",
+                      "-a",
+                      dest="Genome annotation file",
+                      type=str,
+                      metavar="STR",
+                      default = None)
+  parser.add_argument("--annotationFeature",
+                      "-F",
+                      dest="annotationFeature",
+                      type=str,
+                      help="annotation file can be filtered by a feature such as gene, exon or transcript",
+                      default= None)
+  parser.add_argument("--annotationOutput",
+                      "-oa",
+                      dest="annotationOutput",
+                      type=str,
+                      help="saving filtered annotation file if --annotationFeature",
+                      default= None)
+
   parser.add_argument("--referencePoint",
                       dest="referencePoint",
                       type=str,
@@ -81,9 +106,15 @@ def parse_args():
 
 def main():
    """
-   Either the closest genes are foune and a deeptools-like matrix is created, if annotation file is provided,
-   or a deeptools-like matrix directly from a provided enriched regions name-based files.
-   In either case the output matrix is ordered and is appended to the input deeptools matrix.
+   Add a feature column to an existing deepTools matrix.
+
+   The features are combined by the name column of the original BED file (use in
+   computeMatrix).
+
+   Alternatively, a genome annotation GTF can be provided, that allows to map each
+   feature in the table to the closest gene.
+
+   In each case, the original sorting of the deepTools matrix is kept.
    """
 
    parser = parse_args()
