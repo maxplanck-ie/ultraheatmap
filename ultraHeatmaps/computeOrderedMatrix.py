@@ -54,7 +54,7 @@ def parse_args(defaults={}):
                         required=True)
 
    #optional arguments
-      parser.add_argument("-p",
+   parser.add_argument("-p",
                        "--numberOfProcessors",
                        dest="numberOfProcessors",
                        help='[deepTools doc] Number of processors to use. Type '
@@ -138,17 +138,19 @@ def main():
             userconfigfile = yaml.load(stream)
             configfile= merge_dictionaries(configfile, userconfigfile)
    configfile= merge_dictionaries(configfile, vars(args))
+
+   configfile['numberOfProcessors'] = args.numberOfProcessors
+
    #3. Generate an ordered region, using references only
    if configfile["outFileSortedRegions"] is None:
        path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
        configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
-
-   cm.sortbyreference(configfile)
+   
+   cm.sortbyreference(configfile["regionOfInterest"], configfile["bigwigs"], configfile["refIndex"], configfile)
    assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
-   configfile["regionOfInterest"] = configfile["outFileSortedRegions"]
 
    #4.Build a matrix over all the samples
-   hm = cm.computefinalmatrix(configfile["regionOfInterest"], configfile["bigwigs"], configfile)
+   hm = cm.computefinalmatrix(configfile["outFileSortedRegions"], configfile["bigwigs"], configfile)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)
