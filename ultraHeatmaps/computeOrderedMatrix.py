@@ -129,17 +129,16 @@ def main():
             configfile= merge_dictionaries(configfile, userconfigfile)
    configfile= merge_dictionaries(configfile, vars(args))
    #3. Generate an ordered region, using references only
-   regions_list = args.regionOfInterest
    if configfile["outFileSortedRegions"] is None:
        path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
        configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
 
    cm.sortbyreference(configfile)
    assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
-   regions_list = [configfile["outFileSortedRegions"]]
+   configfile["regionOfInterest"] = configfile["outFileSortedRegions"]
 
    #4.Build a matrix over all the samples
-   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile, args)
+   hm = cm.computefinalmatrix(configfile)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)

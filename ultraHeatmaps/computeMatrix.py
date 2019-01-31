@@ -42,7 +42,7 @@ def __parse_matrix_parameters(configfile, post_clustering=False):
     }
     return parameters
 
-def __compute_matrix(configfile, parameters, refList = False):
+def __compute_matrix(configfile, parameters, refList = None):
    """
    computing the corresponding matrix using deeptools/computeMatrix
    """
@@ -109,7 +109,7 @@ def sortbyreference(configfile):
 
 
 
-def computefinalmatrix(regions, bigwigs, configfile, args):
+def computefinalmatrix(configfile):
     parameters = __parse_matrix_parameters(configfile,True)
     hm = __compute_matrix(configfile, parameters)
 

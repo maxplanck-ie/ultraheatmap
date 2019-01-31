@@ -19,7 +19,7 @@ sortRegions: [keep, keep]  ####{descend,ascend,no,keep}
 sortUsing: [mean, mean]   ####{mean,median,max,min,sum,region_length}
 sortUsingSamples:
 averageTypeBins: [mean, mean]
-missingDataAsZero: [False, Flase]
+missingDataAsZero: [False, False]
 skipZeros: [False, False]
 minThreshold: ['','']
 maxThreshold: ['','']
@@ -32,7 +32,7 @@ numberOfProcessors: [1, 1]
 metagene: [False, False]
 transcriptID: [transcript, transcript]
 exonID: [exon, exon]
-transcript_id_designator: [transcript_id, transcript_id] 
+transcript_id_designator: [transcript_id, transcript_id]
 
 ####Optional####
 regionsLabel:
