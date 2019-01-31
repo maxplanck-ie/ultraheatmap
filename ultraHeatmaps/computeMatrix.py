@@ -34,7 +34,7 @@ def __parse_matrix_parameters(configfile, post_clustering=False):
                    'scale': configfile["scale"][index],
                    'skip zeros': configfile["skipZeros"][index],
                    'nan after end': configfile["nanAfterEnd"][index],
-                   'proc number': configfile["numberOfProcessors"][index],
+                   'proc number': configfile["numberOfProcessors"], # some for both runs
                    'sort regions': configfile["sortRegions"][index],
                    'sort using': configfile["sortUsing"][index],
                    'unscaled 5 prime': configfile["unscaled5prime"][index],
@@ -42,17 +42,17 @@ def __parse_matrix_parameters(configfile, post_clustering=False):
     }
     return parameters
 
-def __compute_matrix(configfile, parameters, refList = None):
+def __compute_matrix(regions, bigwigs, configfile, parameters, refIndex = None):
    """
    computing the corresponding matrix using deeptools/computeMatrix
    """
    hm = heatmapper()
-   index = 1
-   if refList:
-       bw = refList
-       index = 0
-   else:
-       bw = configfile["bigwigs"]
+
+   if refIndex:
+       bigwigs = [bigwigs[int(i)-1] for i in refIndex]
+
+   index = 1 if not refIndex else 0
+
    matrix_args = argparse.Namespace()
    matrix_args.transcriptID = configfile['transcriptID'][index]
    matrix_args.exonID = configfile['exonID'][index]
@@ -60,8 +60,9 @@ def __compute_matrix(configfile, parameters, refList = None):
    matrix_args.samplesLabel = configfile['samplesLabel']
    matrix_args.exonID = configfile['exonID'][index]
 
-   hm.computeMatrix(score_file_list = bw, regions_file = configfile["regionOfInterest"], parameters = parameters,
+   hm.computeMatrix(score_file_list = bigwigs, regions_file = regions, parameters = parameters,
     blackListFileName=configfile["blackListFileName"][index], verbose=configfile["verbose"][index], allArgs=matrix_args)
+
    return hm
 
 
@@ -89,7 +90,6 @@ def __clustering(hm,indexList, configfile):
                          "There will likely be an error message from matplotlib regarding this "
                          "below.\n".format(hm.matrix.group_labels[problem[0]]))
 
-
    if configfile["sortRegions"][0] != 'no':
         hm.matrix.sort_groups(sort_using=configfile["sortUsing"][0],sort_method=configfile["sortRegions"][0],sample_list=indexList)
 
@@ -97,21 +97,16 @@ def __clustering(hm,indexList, configfile):
    hm.save_BED(open(configfile["outFileSortedRegions"], "w"))
 
 
-def sortbyreference(configfile):
-    refList=[]
-    for index in configfile["refIndex"]:
-        assert(int(index) >= 1)
-        refList.append(configfile["bigwigs"][int(index)-1])
-    #only on the ref.ones
-    parameters = __parse_matrix_parameters(configfile, False)
-    hm = __compute_matrix(configfile, parameters, refList)
+def sortbyreference(regions, bigwigs, indexList, configfile):
+    # only on the ref.ones
+    parameters = __parse_matrix_parameters(configfile, post_clustering = False)
+    hm = __compute_matrix(regions, bigwigs, configfile, parameters, refIndex = indexList)
     __clustering(hm, configfile["refIndex"], configfile)
 
 
-
 def computefinalmatrix(regions, bigwigs, configfile):
-    parameters = __parse_matrix_parameters(configfile,True)
-    hm = __compute_matrix(configfile, parameters)
+    parameters = __parse_matrix_parameters(configfile, post_clustering = True)
+    hm = __compute_matrix(regions, bigwigs, configfile, parameters, refIndex = None)
 
     if configfile["samplesLabel"] and len(configfile["samplesLabel"]):
          hm.matrix.set_sample_labels(args.samplesLabel)
