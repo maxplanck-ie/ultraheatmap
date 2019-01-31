@@ -109,7 +109,7 @@ def sortbyreference(configfile):
 
 
 
-def computefinalmatrix(configfile):
+def computefinalmatrix(regions, bigwigs, configfile):
     parameters = __parse_matrix_parameters(configfile,True)
     hm = __compute_matrix(configfile, parameters)
 

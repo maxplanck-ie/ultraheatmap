@@ -54,6 +54,16 @@ def parse_args(defaults={}):
                         required=True)
 
    #optional arguments
+      parser.add_argument("-p",
+                       "--numberOfProcessors",
+                       dest="numberOfProcessors",
+                       help='[deepTools doc] Number of processors to use. Type '
+                       '"max/2" to use half the maximum number of processors or '
+                       '"max" to use all available processors.',
+                       type = int,
+                       metavar="INT",
+                       default=1)
+
    parser.add_argument("--outFileSortedRegions",
                        dest="outFileSortedRegions",
                        help='[deepTools doc] File name in which the regions are '
@@ -138,7 +148,7 @@ def main():
    configfile["regionOfInterest"] = configfile["outFileSortedRegions"]
 
    #4.Build a matrix over all the samples
-   hm = cm.computefinalmatrix(configfile)
+   hm = cm.computefinalmatrix(configfile["regionOfInterest"], configfile["bigwigs"], configfile)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)

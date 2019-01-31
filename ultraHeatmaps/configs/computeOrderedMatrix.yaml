@@ -28,7 +28,6 @@ samplesLabel: ##should be equal to the number of bed files
 smartLabels: [False, False]
 verbose: [False, False]
 scale: [1, 1]
-numberOfProcessors: [1, 1]
 metagene: [False, False]
 transcriptID: [transcript, transcript]
 exonID: [exon, exon]
