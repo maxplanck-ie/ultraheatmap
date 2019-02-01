@@ -39,7 +39,7 @@ from the ultraheatmap directory. Now, you already have the program installed and
 
 or
 
-              BuildADeeptoolsLikeMatrix -h
+              AddFeatureToMatrix -h
 
 To terminate the environment run:
 
