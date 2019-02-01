@@ -74,6 +74,11 @@ def parse_args(defaults={}):
                        'Example: Heatmap1sortedRegions.bed',
                        default = None)
 
+   parser.add_argument("--output-reference-matrix",
+                        dest="refOnlyMatrix",
+                        help="Matrix on the reference sampels only before clustering",
+                        required=True)
+
    parser.add_argument("--kmeans",
                        dest="kmeans",
                        metavar="INT",
@@ -91,28 +96,9 @@ def parse_args(defaults={}):
 
    parser.add_argument("--config",
                        dest="userconfig",
-<<<<<<< HEAD
-                       help="this will be added to the dieafult config file",
-                       default=defaults["userconfig"])
-   parser.add_argument('--samplesLabel',
-                       help='Labels for the samples. This will then be passed to plotHeatmap and plotProfile. The '
-                       'default is to use the file name of the '
-                       'sample. The sample labels should be separated '
-                       'by spaces and quoted if a label itself'
-                       'contains a space E.g. --samplesLabel label-1 "label 2"  ',
-                        nargs='+')
-   parser.add_argument('--preClusterMode',
-                       dest = "preClusterMode",
-                       help='Defines a different mode for building the pre-clustering matrix. If set to 0,0 pre-clustering'
-                       ' matrix will be scaled-region if set to A,B it is set to reference-point with A base downstream and B bases upstream.',
-                       type=str,
-                       metavar="STR")
-=======
                        help="Added to the default configuration, overwrites if "
                        "necessary.",
                        default=None)
-
->>>>>>> doc_new
 
    return  parser
 
@@ -155,34 +141,16 @@ def main():
        with open(os.path.join(args.userconfig), 'r') as stream:
             userconfigfile = yaml.load(stream)
             configfile= merge_dictionaries(configfile, userconfigfile)
-<<<<<<< HEAD
-   if args.referencePoint:
-       configfile["regionBodyLength"] = 0
-       if configfile["beforeRegionStartLength"] == 0:
-          configfile["beforeRegionStartLength"] = 1000
-       if configfile["afterRegionStartLength"] == 0:
-          configfile["afterRegionStartLength"] = 1000
-   pre_cluster_mode =""
-   boundries=[]
-   if args.preClusterMode:
-       a,b=args.preClusterMode.split(',')
-       if b is '0' and a is '0':
-           pre_cluster_mode = 'scale-regions'
-       else:
-           pre_cluster_mode = 'reference-point'
-           boundries=[int(a),int(b)]
-   add_diff(vars(args),configfile)
-=======
+
    configfile= merge_dictionaries(configfile, vars(args))
 
    configfile['numberOfProcessors'] = args.numberOfProcessors
 
->>>>>>> doc_new
    #3. Generate an ordered region, using references only
    if configfile["outFileSortedRegions"] is None:
        path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
        configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
-   
+
    cm.sortbyreference(configfile["regionOfInterest"], configfile["bigwigs"], configfile["refIndex"], configfile)
    assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
 
