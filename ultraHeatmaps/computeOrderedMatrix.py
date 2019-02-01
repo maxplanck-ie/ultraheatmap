@@ -74,8 +74,8 @@ def parse_args(defaults={}):
                        'Example: Heatmap1sortedRegions.bed',
                        default = None)
 
-   parser.add_argument("--output-reference-matrix",
-                        dest="refOnlyMatrix",
+   parser.add_argument("--outputReferenceMatrix",
+                        dest="outputReferenceMatrix",
                         help="Matrix on the reference sampels only before clustering",
                         required=True)
 
