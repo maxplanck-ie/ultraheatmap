@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import yaml
+import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__file__))))))
 
@@ -14,7 +15,7 @@ import ultraHeatmaps.computeMatrix as cm
 #Code directory:
 configDir = os.path.dirname(os.path.realpath(__file__))
 #Parse entered arguments
-def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "metagene":None, "userconfig":None, "outFileSortedRegions": None, "refIndex" : None, "numberOfProcessors" : None}):
+def parse_args(defaults={}):
 
    """
    Parse the arguments from the command line
@@ -42,52 +43,17 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        help="Matrix clustered by the given reference samples",
                        required=True)
 
-   #optional arguments
-   parser.add_argument("--outFileSortedRegions",
-                       dest="outFileSortedRegions",
-                       help='[deepTools doc] File name in which the regions are '
-                       'saved after skiping zeros or min/max threshold values. '
-                       'The order of the regions in the file follows the sorting '
-                       'order selected. This is useful, for example, to generate '
-                       'other heatmaps keeping the sorting of the first heatmap. '
-                       'Example: Heatmap1sortedRegions.bed',
-                       default = defaults["outFileSortedRegions"])
-
-   parser.add_argument("--kmeans",
-                       dest="kmeans",
-                       metavar="INT",
-                       type=int,
-                       help="number of clusters in k-means clustering",
-                       default=defaults["kmeans"])
-   parser.add_argument("--hclust",
-                       dest="hclust",
-                       metavar="INT",
-                       type=int,
-                       help="Number of clusters to compute using hierarchical clustering as defined by deepTools plotHeatmap",
-                       default=defaults["hclust"])
-
-   parser.add_argument( '-i',
-                        '--index',
+   parser.add_argument( "-i",
+                        "--index",
                         "--referenceSampleIndex",
-                       dest="refIndex",
-                       nargs='+',
-                       help='Index, 1-based, to define the reference samples. The '
-                       'reference samples will be used for the clustering of the '
-                       'matrix, before all samples are added. Space-separated',
-                       default = defaults["refIndex"],
-                       required=True)
+                        dest="refIndex",
+                        nargs='+',
+                        help='Index, 1-based, to define the reference samples. The '
+                        'reference samples will be used for the clustering of the '
+                        'matrix, before all samples are added. Space-separated',
+                        required=True)
 
-   parser.add_argument("--metagene",
-                       dest="metagene",
-                       action="store_true",
-                       help='[deepTools doc] When either a BED12 or GTF file are '
-                       'used to provide regions, perform the computation on the '
-                       'merged exons, rather than using the genomic interval '
-                       'defined by the 5-prime and 3-prime most transcript bound '
-                       '(i.e., columns 2 and 3 of a BED file). If a BED3 or BED6 '
-                       'file is used as input, then columns 2 and 3 are used as an '
-                        'exon.',
-                       default=defaults["metagene"])
+   #optional arguments
    parser.add_argument("-p",
                        "--numberOfProcessors",
                        dest="numberOfProcessors",
@@ -96,36 +62,40 @@ def parse_args(defaults={"kmeans":None, "hclust":None, "referencePoint":None, "m
                        '"max" to use all available processors.',
                        type = int,
                        metavar="INT",
-                       default=defaults["numberOfProcessors"])
-   parser.add_argument("--referencePoint",
-                       dest="referencePoint",
-                       type=str,
-                       help='[deepTools doc] The reference point for the plotting could be either'
-                        'the region start (TSS), the region end (TES) or the'
-                        'center of the region. Note that regardless of what you'
-                        'specify, plotHeatmap/plotProfile will default to using'
-                        '"TSS" as the label.',
-                       default=defaults["referencePoint"])
+                       default=1)
+
+   parser.add_argument("--outFileSortedRegions",
+                       dest="outFileSortedRegions",
+                       help='[deepTools doc] File name in which the regions are '
+                       'saved after skiping zeros or min/max threshold values. '
+                       'The order of the regions in the file follows the sorting '
+                       'order selected. This is useful, for example, to generate '
+                       'other heatmaps keeping the sorting of the first heatmap. '
+                       'Example: Heatmap1sortedRegions.bed',
+                       default = None)
+
+   parser.add_argument("--kmeans",
+                       dest="kmeans",
+                       metavar="INT",
+                       type=int,
+                       help="number of clusters in k-means clustering",
+                       default=None)
+
+   parser.add_argument("--hclust",
+                       dest="hclust",
+                       metavar="INT",
+                       type=int,
+                       help="Number of clusters to compute using hierarchical clustering as defined by deepTools plotHeatmap",
+                       default=None)
+
+
    parser.add_argument("--config",
                        dest="userconfig",
                        help="Added to the default configuration, overwrites if "
                        "necessary.",
-                       default=defaults["userconfig"])
-   parser.add_argument('--samplesLabel',
-                       help='[deepTools doc] Labels for the samples. This will then be passed to '
-                       'plotHeatmap and plotProfile. The default is to use the '
-                       'file name of the sample. The sample labels should be '
-                       ' separated by spaces and quoted if a label itself'
-                       'contains a space E.g. --samplesLabel label-1 "label 2"',
-                        nargs='+')
-   parser.add_argument('--cluster_mode',
-                       dest = "cluster_mode",
-                       help='The cluster is by default performed in the same way '
-                       'as the final matrix same mode (reference-point/scale-regions). '
-                       'To compute the clustering for \'scale-regions\', use \'0,0\' '
-                       'for \'reference-point\', use \'A,B\', where A,B are up/downstream flanks [nt].',
-                       type=str,
-                       metavar="STR")
+                       default=None)
+
+
    return  parser
 
 
@@ -167,39 +137,24 @@ def main():
        with open(os.path.join(args.userconfig), 'r') as stream:
             userconfigfile = yaml.load(stream)
             configfile= merge_dictionaries(configfile, userconfigfile)
-   if args.referencePoint:
-       configfile["regionBodyLength"] = 0
-       if configfile["beforeRegionStartLength"] == 0:
-          configfile["beforeRegionStartLength"] = 1000
-       if configfile["afterRegionStartLength"] == 0:
-          configfile["afterRegionStartLength"] = 1000
-   pre_cluster_mode =""
-   boundries=[]
+   configfile= merge_dictionaries(configfile, vars(args))
 
-   if args.cluster_mode:
-       a,b=args.cluster_mode.split(',')
-       if b is '0' and a is '0':
-           pre_cluster_mode = 'scale-regions'
-       else:
-           pre_cluster_mode = 'reference-point'
-           boundries=[int(a),int(b)]
-   add_diff(vars(args),configfile)
+   configfile['numberOfProcessors'] = args.numberOfProcessors
+
    #3. Generate an ordered region, using references only
-   regions_list = args.regionOfInterest
-   if args.refIndex:
-       if configfile["outFileSortedRegions"] is None:
-           path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
-           configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
-       cm.sortbyreference(args.regionOfInterest,args.refIndex,args.bigwigs,configfile, args, pre_cluster_mode, boundries)
-       assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
-       regions_list = [configfile["outFileSortedRegions"]]
+   if configfile["outFileSortedRegions"] is None:
+       path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
+       configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
+   
+   cm.sortbyreference(configfile["regionOfInterest"], configfile["bigwigs"], configfile["refIndex"], configfile)
+   assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
 
    #4.Build a matrix over all the samples
-   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile, args)
+   hm = cm.computefinalmatrix(configfile["outFileSortedRegions"], configfile["bigwigs"], configfile)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)
 
 
-#if __name__ == "__main__":
-    #main()
+if __name__ == "__main__":
+    main()
