@@ -73,12 +73,11 @@ def parse_args(defaults={}):
                        'other heatmaps keeping the sorting of the first heatmap. '
                        'Example: Heatmap1sortedRegions.bed',
                        default = None)
-
    parser.add_argument("--outputReferenceMatrix",
                         dest="outputReferenceMatrix",
                         help="Matrix on the reference sampels only before clustering",
                         required=False)
-
+    
    parser.add_argument("--kmeans",
                        dest="kmeans",
                        metavar="INT",
@@ -151,6 +150,7 @@ def main():
        path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
        configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
 
+      
    cm.sortbyreference(configfile["regionOfInterest"], configfile["bigwigs"], configfile["refIndex"], configfile)
    assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
 
