@@ -79,7 +79,7 @@ def parse_args():
 
   parser.add_argument("--annotation",
                       "-a",
-                      dest="Genome annotation file",
+                      dest="annotation",
                       type=str,
                       metavar="STR",
                       default = None)
