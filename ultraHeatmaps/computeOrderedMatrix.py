@@ -77,7 +77,7 @@ def parse_args(defaults={}):
    parser.add_argument("--outputReferenceMatrix",
                         dest="outputReferenceMatrix",
                         help="Matrix on the reference sampels only before clustering",
-                        required=True)
+                        required=False)
 
    parser.add_argument("--kmeans",
                        dest="kmeans",
