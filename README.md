@@ -17,13 +17,13 @@ The Prerequisites can be found in requirements.yaml
 
 ### Installation
 
-First, create a new conda environment with all the Prerequisites by running the following command line:
-
-              conda env create -f requirements.yaml
-
-Afterwards, get the source code:
+First clone the repository
 
              git clone https://github.com/maxplanck-ie/ultraheatmap.git
+
+From with in the repository, create a conda environment from yml (yaml)
+
+              conda env create -f requirements.yaml
 
 Then activate the environment:
 
@@ -39,7 +39,7 @@ from the ultraheatmap directory. Now, you already have the program installed and
 
 or
 
-              BuildADeeptoolsLikeMatrix -h
+              AddFeatureToMatrix -h
 
 To terminate the environment run:
 

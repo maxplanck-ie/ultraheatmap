@@ -46,6 +46,7 @@ def __compute_matrix(regions, bigwigs, configfile, parameters, refIndex = None):
    """
    computing the corresponding matrix using deeptools/computeMatrix
    """
+
    hm = heatmapper()
 
    if refIndex:
@@ -64,6 +65,7 @@ def __compute_matrix(regions, bigwigs, configfile, parameters, refIndex = None):
     blackListFileName=configfile["blackListFileName"][index], verbose=configfile["verbose"][index], allArgs=matrix_args)
 
    return hm
+
 
 
 def __clustering(hm,indexList, configfile):
@@ -101,6 +103,9 @@ def sortbyreference(regions, bigwigs, indexList, configfile):
     # only on the ref.ones
     parameters = __parse_matrix_parameters(configfile, post_clustering = False)
     hm = __compute_matrix(regions, bigwigs, configfile, parameters, refIndex = indexList)
+    outputMatrix_path = os.path.join(configfile["outputReferenceMatrix"])
+    hm.save_matrix(outputMatrix_path)
+
     __clustering(hm, configfile["refIndex"], configfile)
 
 
