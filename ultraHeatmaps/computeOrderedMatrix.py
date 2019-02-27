@@ -54,6 +54,16 @@ def parse_args(defaults={}):
                         required=True)
 
    #optional arguments
+   parser.add_argument("-p",
+                       "--numberOfProcessors",
+                       dest="numberOfProcessors",
+                       help='[deepTools doc] Number of processors to use. Type '
+                       '"max/2" to use half the maximum number of processors or '
+                       '"max" to use all available processors.',
+                       type = int,
+                       metavar="INT",
+                       default=1)
+
    parser.add_argument("--outFileSortedRegions",
                        dest="outFileSortedRegions",
                        help='[deepTools doc] File name in which the regions are '
@@ -63,6 +73,10 @@ def parse_args(defaults={}):
                        'other heatmaps keeping the sorting of the first heatmap. '
                        'Example: Heatmap1sortedRegions.bed',
                        default = None)
+   parser.add_argument("--outputReferenceMatrix",
+                        dest="outputReferenceMatrix",
+                        help="Matrix on the reference sampels only before clustering",
+                        default=None)
 
    parser.add_argument("--kmeans",
                        dest="kmeans",
@@ -76,7 +90,7 @@ def parse_args(defaults={}):
                        metavar="INT",
                        type=int,
                        help="Number of clusters to compute using hierarchical clustering as defined by deepTools plotHeatmap",
-                       default=None)
+default=None)
 
 
    parser.add_argument("--config",
@@ -84,7 +98,6 @@ def parse_args(defaults={}):
                        help="Added to the default configuration, overwrites if "
                        "necessary.",
                        default=None)
-
 
    return  parser
 
@@ -127,23 +140,21 @@ def main():
        with open(os.path.join(args.userconfig), 'r') as stream:
             userconfigfile = yaml.load(stream)
             configfile= merge_dictionaries(configfile, userconfigfile)
+
    configfile= merge_dictionaries(configfile, vars(args))
+   configfile['numberOfProcessors'] = args.numberOfProcessors
+
    #3. Generate an ordered region, using references only
-   regions_list = args.regionOfInterest
    if configfile["outFileSortedRegions"] is None:
        path_name = os.path.dirname(os.path.abspath(args.matrixOutput))
        configfile["outFileSortedRegions"] = path_name+'/orderedBedFile.bed'
 
-   cm.sortbyreference(configfile)
+
+   cm.sortbyreference(configfile["regionOfInterest"], configfile["bigwigs"], configfile["refIndex"], configfile)
    assert(os.path.getsize(configfile["outFileSortedRegions"]) > 0)
-   regions_list = [configfile["outFileSortedRegions"]]
 
    #4.Build a matrix over all the samples
-   hm = cm.computefinalmatrix(regions_list, args.bigwigs, configfile, args)
+   hm = cm.computefinalmatrix(configfile["outFileSortedRegions"], configfile["bigwigs"], configfile)
 
    matrix_output=os.path.join(args.matrixOutput)
    hm.save_matrix(matrix_output)
-
-
-if __name__ == "__main__":
-    main()
