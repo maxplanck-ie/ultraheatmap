@@ -76,7 +76,7 @@ def parse_args(defaults={}):
    parser.add_argument("--outputReferenceMatrix",
                         dest="outputReferenceMatrix",
                         help="Matrix on the reference sampels only before clustering",
-                        required=False)
+                        default=None)
 
    parser.add_argument("--kmeans",
                        dest="kmeans",
@@ -142,7 +142,6 @@ def main():
             configfile= merge_dictionaries(configfile, userconfigfile)
 
    configfile= merge_dictionaries(configfile, vars(args))
-
    configfile['numberOfProcessors'] = args.numberOfProcessors
 
    #3. Generate an ordered region, using references only
