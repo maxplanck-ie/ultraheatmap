@@ -17,13 +17,14 @@ The Prerequisites can be found in requirements.yaml
 
 ### Installation
 
-First clone the repository
+First, get the source code:
 
              git clone https://github.com/maxplanck-ie/ultraheatmap.git
 
-From with in the repository, create a conda environment from yml (yaml)
+Afterwards, create a new conda environment with all the Prerequisites by running the following command line:
 
               conda env create -f requirements.yaml
+
 
 Then activate the environment:
 
@@ -35,11 +36,14 @@ To install the program in this environment:
 
 from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
 
-              computeOrderedMatrix -h
+            $  ultraheatmaps -h ,
+
+            $  computeOrderedMatrix -h
 
 or
 
-              AddFeatureToMatrix -h
+
+            $  AddFeatureToMatrix -h
 
 To terminate the environment run:
 

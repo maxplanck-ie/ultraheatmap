@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import pandas as pd
 import csv
 import os
@@ -8,55 +10,70 @@ import gffutils
 
 from ultraHeatmaps.mapClosestGenes import keymap_from_closest_genes
 
-def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput, referencePoint, filename = None):
+# TODO:
+def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput,
+                       referencePoint, filename=None):
     """
     Find the closest gene using bedtools.closest
     """
     Peaks = BedTool(peaks)
     Annotation = BedTool(annotation)
-    Peaks=Peaks.sort()
-    sites=Annotation.sort()
+    Peaks = Peaks.sort()
+    sites = Annotation.sort()
     if annotationFeature:
-        filteredAnnotation = __filter_annotation(filteredoutput, annotationFeature, annotation,referencePoint)
-        sites=BedTool(filteredAnnotation).sort()
+        filteredAnnotation = __filter_annotation(filteredoutput,
+                                                 annotationFeature, annotation,
+                                                 referencePoint)
+        sites = BedTool(filteredAnnotation).sort()
     elif referencePoint:
         filteredAnnotation = list()
         for feature in gffutils.DataIterator(annotation):
-            filteredAnnotation.append(str(__get_reference_coordinate(feature, referencePoint)))
-        sites=BedTool(filteredAnnotation).sort()
-    mapped=Peaks.closest(sites, t="first")
+            filteredAnnotation.append(str(__get_reference_coordinate(feature,
+                                          referencePoint)))
+        sites = BedTool(filteredAnnotation).sort()
+    mapped = Peaks.closest(sites, t="first")
 
     if filename:
         mapped.saveas(filename)
 
     return(mapped)
 
+
 def __get_reference_coordinate(feature, referencePoint):
-    if (feature.strand == '+' and referencePoint =='TSS') or (feature.strand == '-' and referencePoint =='TES'):
+    """
+    """
+    if (feature.strand == '+' and referencePoint == 'TSS') or\
+       (feature.strand == '-' and referencePoint == 'TES'):
         feature.end = feature.start
     else:
-        assert(feature.strand == '-' and referencePoint == 'TSS') or (feature.strand == '+' and referencePoint == 'TES')
-        feature.start=feature.end
+        assert(feature.strand == '-' and referencePoint == 'TSS') or\
+              (feature.strand == '+' and referencePoint == 'TES')
+        feature.start = feature.end
     return feature
 
-def __filter_annotation(filteredoutput, annotationFeature, annotation, referencePoint):
-   """
-   filters annotation for the gene type of the interest
-   """
-   if filteredoutput:
-       fo = open(filteredoutput,"w")
-   filteredAnnotation = list()
-   for feature in gffutils.DataIterator(annotation):
-           if feature.featuretype == annotationFeature:
-              if filteredoutput:
-                  fo.write(str(feature)+'\n')
-              if referencePoint:
-                  feature = __get_reference_coordinate(feature, referencePoint)
-              filteredAnnotation.append(str(feature))
 
-   return filteredAnnotation
+# TODO
+def __filter_annotation(filteredoutput, annotationFeature, annotation,
+                        referencePoint):
+    """
+    Filter the annotation for the gene type of interest.
+    """
+    if filteredoutput:
+        fo = open(filteredoutput, "w")
+    filteredAnnotation = list()
+    for feature in gffutils.DataIterator(annotation):
+        if feature.featuretype == annotationFeature:
+            if filteredoutput:
+                fo.write(str(feature)+'\n')
+            if referencePoint:
+                feature = __get_reference_coordinate(feature, referencePoint)
+            filteredAnnotation.append(str(feature))
 
-def extract_ge_folchange_per_peak(peaks, tables, closestMapping,features, IdColumn,hm):
+    return filteredAnnotation
+
+
+def extract_ge_folchange_per_peak(peaks, tables, closestMapping, features,
+                                  IdColumn, hm):
     """
 
     """
