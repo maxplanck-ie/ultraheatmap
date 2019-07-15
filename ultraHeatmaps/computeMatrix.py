@@ -189,4 +189,4 @@ def computefinalmatrix(regions, bigwigs, configfile):
     if configfile["regionsLabel"]:
         hm.matrix.set_group_labels(configfile["regionsLabel"])
 
-return hm
+    return hm

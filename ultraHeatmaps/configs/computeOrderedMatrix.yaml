@@ -1,5 +1,7 @@
 #########Default config file##############
 ###Use `` to fill the irrelevant fields in
+### First value is for the matrix before clustering the second one is for the
+### matrix after clustering.
 ###scale-regions###
 regionBodyLength: [1000,1000]  # 0 for reference-point 1000 for scale-regions
 startLabel: [TSS, TSS]
