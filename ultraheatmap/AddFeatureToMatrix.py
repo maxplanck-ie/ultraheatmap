@@ -6,7 +6,7 @@ import argparse
 import yaml
 import pandas as pd
 
-from ultraHeatmaps.parseTables import extract_ge_folchange_per_peak,\
+from ultraheatmap.parseTables import extract_ge_folchange_per_peak,\
     find_closest_genes, parseMatrixRegions, update_matrix_values,\
     __read_tables_columns
 from deeptools.heatmapper import heatmapper

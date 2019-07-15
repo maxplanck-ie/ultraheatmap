@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.realpath(__file__))))))
-from ultraHeatmaps.plotHeatMap import __plot_heatmap
+from ultraheatmap.plotHeatMap import __plot_heatmap
 from deeptools.heatmapper import heatmapper
 
 def __compute_matrix(bw, bed, configfile, args, pre_cluster_mode, boundries): ##XXX What about metagene?

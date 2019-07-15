@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(__
 
 
 #import necessary modules
-import ultraHeatmaps.computeMatrix as cm
+import ultraheatmap.computeMatrix as cm
 
 #Code directory:
 configDir = os.path.dirname(os.path.realpath(__file__))

@@ -3,7 +3,7 @@
 import os
 import sys
 
-from ultraHeatmaps.computeOrderedMatrix import main
+from ultraheatmap.computeOrderedMatrix import main
 
 if __name__ == "__main__":
    main()
