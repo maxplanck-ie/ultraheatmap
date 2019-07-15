@@ -8,7 +8,7 @@ from pybedtools import BedTool
 import numpy as np
 import gffutils
 
-from ultraHeatmaps.mapClosestGenes import keymap_from_closest_genes
+from ultraheatmap.mapClosestGenes import keymap_from_closest_genes
 
 # TODO:
 def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput,

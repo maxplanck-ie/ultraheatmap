@@ -1,6 +1,6 @@
 import argparse
 import sys
-from ultraHeatmaps._version import __version__
+from ultraheatmap._version import __version__
 
 
 def parse_arguments(args=None):

@@ -1,6 +1,6 @@
 # ultraheatmap
 
-ultraheatmaps facilitates the production of [deepTools](https://github.com/deeptools/deepTools)
+ultraheatmap facilitates the production of [deepTools](https://github.com/deeptools/deepTools)
 heatmaps. The heatmaps typically show signal at genomic regions, which can be
 appended by orthogonal data, like associated gene expression. ultraheatmap
 facilitates adding orthogonal data to a deepTools matrix and allows to cluster a
@@ -9,7 +9,7 @@ genomic heatmap by selected samples in just one single command-line call.
 
 ## Getting Started
 
-These instructions will get you a copy of ultraheatmaps up and running on your local machine.
+These instructions will get you a copy of ultraheatmap up and running on your local machine.
 
 ### Prerequisites
 
@@ -36,7 +36,7 @@ To install the program in this environment:
 
 from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
 
-            $  ultraheatmaps -h ,
+            $  ultraheatmap -h ,
 
             $  computeOrderedMatrix -h
 

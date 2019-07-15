@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 import argparse
+
 from deeptools.heatmapper import heatmapper
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((
