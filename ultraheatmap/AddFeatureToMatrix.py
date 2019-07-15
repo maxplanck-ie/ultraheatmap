@@ -5,11 +5,13 @@ import sys
 import argparse
 import yaml
 import pandas as pd
+import textwrap
 
 from ultraheatmap.parseTables import extract_ge_folchange_per_peak,\
     find_closest_genes, parseMatrixRegions, update_matrix_values,\
     __read_tables_columns
 from deeptools.heatmapper import heatmapper
+
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname((os.path.abspath(
                 __file__))))))

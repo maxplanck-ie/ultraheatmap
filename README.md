@@ -42,6 +42,7 @@ from the ultraheatmap directory. Now, you already have the program installed and
 
 or
 
+
             $  AddFeatureToMatrix -h
 
 To terminate the environment run:
