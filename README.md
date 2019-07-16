@@ -28,11 +28,13 @@ Afterwards, create a new conda environment with all the Prerequisites by running
 
 Then activate the environment:
 
-              source activate ultraheatmap
+              conda activate ultraheatmap
 
 To install the program in this environment:
 
               python setup.py install
+
+Alternatively, `pip` or `conda` can be used to install the package. We highly recommend you to create a new conda environment prior to the installation and install it after activating this environment.
 
 from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
 
@@ -47,4 +49,4 @@ or
 
 To terminate the environment run:
 
-              source deactivate
+              conda deactivate
