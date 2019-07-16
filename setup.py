@@ -21,6 +21,7 @@ setup(
     packages=find_packages(),
     scripts=['bin/computeOrderedMatrix', 'bin/AddFeatureToMatrix',
              'bin/ultraheatmap'],
+    license="MIT",
     long_description=open('README.md').read(),
     include_package_data=True,
     cmdclass={'sdist': sdist, 'install': install}
