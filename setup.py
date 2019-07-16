@@ -17,7 +17,7 @@ class install(_install):
         return
 
 setup(
-    name='ultraHeatmaps',
+    name='ultraheatmap',
     packages=find_packages(),
     scripts=['bin/computeOrderedMatrix', 'bin/AddFeatureToMatrix',
              'bin/ultraheatmap'],
