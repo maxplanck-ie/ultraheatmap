@@ -4,7 +4,7 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.sdist import sdist as _sdist
 from setuptools.command.install import install as _install
 
-# Set __version__
+# read __version__
 exec(open('ultraheatmap/__init__.py').read())
 
 class sdist(_sdist):
