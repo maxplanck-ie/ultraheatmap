@@ -1,6 +1,6 @@
 import argparse
 import sys
-from ultraheatmap._init_ import __version__
+exec(open('ultraheatmap/__init__.py').read())
 
 
 def parse_arguments(args=None):
