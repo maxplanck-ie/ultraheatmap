@@ -12,7 +12,7 @@ from ultraheatmap.mapClosestGenes import keymap_from_closest_genes
 
 # TODO:
 def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput,
-                       referencePoint, filename=None):
+                       referencePoint, filename="/data/processing/rabbani/test_ultraheatmap/test.bed"):
     """
     Find the closest gene using bedtools.closest
     """
