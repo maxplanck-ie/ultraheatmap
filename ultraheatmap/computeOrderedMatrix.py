@@ -27,120 +27,125 @@ def parse_args(defaults={}):
                                      "using the sorted/clustered regions.",
                                      formatter_class=argparse.
                                      ArgumentDefaultsHelpFormatter)
+
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
+
     # Required arguments
-    parser.add_argument("-S",
-                        "--scoreFileName",
-                        dest="bigwigs",
-                        nargs='+',
-                        help="bigwig files, the ordered matrix is computed"
-                        "from.",
-                        required=True)
-    parser.add_argument("-R",
-                        "--regionsFileName",
-                        dest="regionOfInterest",
-                        nargs='+',
-                        help="BED files definig the genomic regions of the "
-                        "matrix.Multiple files can be provided, but the per "
-                        "group information will be lost due to the clustering",
-                        required=True)
-    parser.add_argument("-o",
-                        "--outFileName",
-                        dest="matrixOutput",
-                        help="Matrix clustered by the given reference samples",
-                        required=True)
+    required.add_argument("-S",
+                          "--scoreFileName",
+                          dest="bigwigs",
+                          nargs='+',
+                          help="bigwig files, the ordered matrix is computed"
+                          "from.",
+                          required=True)
+    required.add_argument("-R",
+                          "--regionsFileName",
+                          dest="regionOfInterest",
+                          nargs='+',
+                          help="BED files definig the genomic regions of the "
+                          "matrix.Multiple files can be provided, but the per "
+                          "group information will be lost due to the clustering",
+                          required=True)
+    required.add_argument("-o",
+                          "--outFileName",
+                          dest="matrixOutput",
+                          help="Matrix clustered by the given reference samples",
+                          required=True)
 
     # optional arguments
-    parser.add_argument("-g",
-                        "--groupUsingSamples",
-                        dest="refIndices",
-                        nargs='+',
-                        help="sample indices, 1-based, to define the reference"
-                        "samples. The reference samples will be used for "
-                        "sorting/clustering the regions, before all samples "
-                        "will be used to generate the output matrix. Several "
-                        "indices can be added while separated by space from "
-                        "each other. Defaul it None and will take all the "
-                        "samples into account to sort/cluster the regions.",
-                        type=int,
-                        default=None)
+    optional.add_argument("-g",
+                          "--groupUsingSamples",
+                          dest="refIndices",
+                          nargs='+',
+                          help="sample indices, 1-based, to define the reference"
+                          "samples. The reference samples will be used for "
+                          "sorting/clustering the regions, before all samples "
+                          "will be used to generate the output matrix. Several "
+                          "indices can be added while separated by space from "
+                          "each other. Defaul it None and will take all the "
+                          "samples into account to sort/cluster the regions.",
+                          type=int,
+                          default=None)
 
-    parser.add_argument("-p",
-                        "--numberOfProcessors",
-                        dest="numberOfProcessors",
-                        help="From deepTools doc: Number of processors to "
-                        "use. Type \"max/2\" to use half the maximum number "
-                        "of processors or \"max\" to use all available "
-                        "processors.",
-                        nargs='+',
-                        type=int,
-                        default=[1, 1])
+    optional.add_argument("-p",
+                          "--numberOfProcessors",
+                          dest="numberOfProcessors",
+                          help="From deepTools doc: Number of processors to "
+                          "use. Type \"max/2\" to use half the maximum number "
+                          "of processors or \"max\" to use all available "
+                          "processors.",
+                          nargs='+',
+                          type=int,
+                          default=[1, 1])
 
-    parser.add_argument("--outFileSortedRegions",
-                        dest="outFileSortedRegions",
-                        help="From deepTools doc: File name in which the "
-                        "regions are saved after skiping zeros or min/max "
-                        "threshold values. The order of the regions in the "
-                        "file follows the sorting order selected. This is "
-                        "useful, for example, to generate other heatmaps "
-                        "keeping the sorting of the first heatmap.",
-                        default=None)
+    optional.add_argument("--outFileSortedRegions",
+                          dest="outFileSortedRegions",
+                          help="From deepTools doc: File name in which the "
+                          "regions are saved after skiping zeros or min/max "
+                          "threshold values. The order of the regions in the "
+                          "file follows the sorting order selected. This is "
+                          "useful, for example, to generate other heatmaps "
+                          "keeping the sorting of the first heatmap.",
+                          default=None)
 
-    parser.add_argument("--outputReferenceMatrix",
-                        dest="outputReferenceMatrix",
-                        help="Matrix on the reference sampels only before "
-                        "clustering",
-                        default=None)
+    optional.add_argument("--outputReferenceMatrix",
+                          dest="outputReferenceMatrix",
+                          help="Matrix on the reference sampels only before "
+                          "clustering",
+                          default=None)
 
-    parser.add_argument("--kmeans",
-                        dest="kmeans",
-                        metavar="INT",
-                        type=int,
-                        help="number of clusters in k-means clustering",
-                        default=None)
+    optional.add_argument("--kmeans",
+                          dest="kmeans",
+                          metavar="INT",
+                          type=int,
+                          help="number of clusters in k-means clustering",
+                          default=None)
 
-    parser.add_argument("--hclust",
-                        dest="hclust",
-                        metavar="INT",
-                        type=int,
-                        help="Number of clusters to compute using hierarchical"
-                        "clustering as defined by deepTools plotHeatmap",
-                        default=None)
+    optional.add_argument("--hclust",
+                          dest="hclust",
+                          metavar="INT",
+                          type=int,
+                          help="Number of clusters to compute using hierarchical"
+                          "clustering as defined by deepTools plotHeatmap",
+                          default=None)
 
-    parser.add_argument("-b", "--upstream",
-                        "--beforeRegionStartLength",
-                        dest="beforeRegionStartLength",
-                        help="From deepTools doc: Distance upstream of the "
-                        "start site of the regions defined in the region file."
-                        " If the regions are genes, this would be the distance"
-                        " upstream of the transcription start site.",
-                        nargs='+',
-                        type=int,
-                        default=[0, 0])
+    optional.add_argument("-b", "--upstream",
+                          "--beforeRegionStartLength",
+                          dest="beforeRegionStartLength",
+                          help="From deepTools doc: Distance upstream of the "
+                          "start site of the regions defined in the region file."
+                          " If the regions are genes, this would be the distance"
+                          " upstream of the transcription start site.",
+                          nargs='+',
+                          type=int,
+                          default=[0, 0])
 
-    parser.add_argument("-a", "--downstream",
-                        "--afterRegionStartLength",
-                        dest="afterRegionStartLength",
-                        help="From deepTools doc: Distance downstream of the "
-                        "end site of the given regions. If the regions are "
-                        "genes, this would be the distance downstream of the "
-                        "transcription end site. ",
-                        type=int,
-                        nargs='+',
-                        default=[0, 0])
+    optional.add_argument("-a", "--downstream",
+                          "--afterRegionStartLength",
+                          dest="afterRegionStartLength",
+                          help="From deepTools doc: Distance downstream of the "
+                          "end site of the given regions. If the regions are "
+                          "genes, this would be the distance downstream of the "
+                          "transcription end site. ",
+                          type=int,
+                          nargs='+',
+                          default=[0, 0])
 
-    parser.add_argument("-op",
-                        "--plotOutput",
-                        dest="plotOutput",
-                        help="File name to save the intermediate heatmap. "
-                        "The file ending will be used to determine the format "
-                        "of the image . Available formats are: \"png\", "
-                        "\"eps\", \"pdf\" and \"svg\" (From deeptools doc)")
+    optional.add_argument("-op",
+                          "--plotOutput",
+                          dest="plotOutput",
+                          help="File name to save the intermediate heatmap. "
+                          "The file ending will be used to determine the format "
+                          "of the image . Available formats are: \"png\", "
+                          "\"eps\", \"pdf\" and \"svg\" (From deeptools doc)",
+                          default=None)
 
-    parser.add_argument("--config",
-                        dest="userconfig",
-                        help="Added to the default configuration, overwrites "
-                        "if necessary.",
-                        default=None)
+    optional.add_argument("--config",
+                          dest="userconfig",
+                          help="Added to the default configuration, overwrites "
+                          "if necessary.",
+                          default=None)
     return parser
 
 
