@@ -31,13 +31,13 @@ def parse_args():
                         help="deeptools matrix",
                         required=True)
     parser.add_argument("--output",
-                        "-om",
+                        "-o",
                         dest="outputMatrix",
                         type=str,
                         metavar="STR",
                         help="output matrix",
                         required=True)
-    parser.add_argument("--tables",
+    parser.add_argument("--feature.tables",
                         "-t",
                         dest="tables",
                         nargs='+',
@@ -53,27 +53,28 @@ def parse_args():
                         help="annotation file can be filtered by a feature "
                              "such as gene, exon or transcript",
                         default=None)
-    parser.add_argument("--annotationOutput",
+    parser.add_argument("--filteredGenomeGtfOutputFile",
                         "-oa",
                         dest="annotationOutput",
                         type=str,
                         help="saving filtered annotation file if "
                              "--annotationFeature",
                         default=None)
-    parser.add_argument("--annotation",
-                        "-a",
+    parser.add_argument("--genomeGtf",
+                        "-g",
                         dest="annotation",
                         type=str,
                         metavar="STR",
+                        help="genome annotation (gtf) to map peaks to closest gene. Will be filtered through '--annotationFeature'",
                         default=None)
-    parser.add_argument("--Features",
+    parser.add_argument("--featureNames",
                         "-f",
                         dest="Features",
                         nargs='+',
                         help="A list of features of interest from gene id "
                              "tables or name based tables",
                         default=["log2(FC)"])
-    parser.add_argument("--IDcolumn",
+    parser.add_argument("--featureIdColumn",
                         dest="idcolumn",
                         type=str,
                         help="name of the column includes ids/names",
