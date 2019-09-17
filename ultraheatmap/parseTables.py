@@ -12,7 +12,7 @@ from ultraheatmap.mapClosestGenes import keymap_from_closest_genes
 
 # TODO:
 def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput,
-                       referencePoint, filename=None):
+                       referencePoint, filename="/data/processing/rabbani/test_ultraheatmap/test.bed"):
     """
     Find the closest gene using bedtools.closest
     """
@@ -120,7 +120,6 @@ def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm
     """
     assert len(keyMap_closest) == len(peaks)
     valuesTab = np.empty((len(peaks), len(tables)*len(features)), dtype=float)
-    print(tables)
     for i, table in enumerate(tables):
         table = parseTable(table)
         values = __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn)
@@ -150,7 +149,6 @@ def __update_parameters(hm,length):
     """
 
     """
-    print(length)
     for i in range(length):
         hm.parameters['unscaled 5 prime'].append(0)
         hm.parameters['unscaled 3 prime'].append(0)
@@ -167,7 +165,6 @@ def update_matrix_values(peaks, tables,features, IdColumn,hm):
     correspoding values of each region, obtained from the tables, are added to the matrix values.
     """
     valuesTab = np.empty((len(peaks), len(tables)*len(features)), dtype=float)
-    print(valuesTab.shape)
     for i, table in enumerate(tables):
         table = parseTable(table)
         values = __getValuesFromNameTable(peaks, table, features, IdColumn)
