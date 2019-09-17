@@ -30,7 +30,7 @@ samplesLabel: ##should be equal to the number of bw files
 smartLabels: [False, False]
 verbose: [False, False]
 scale: [1, 1]
-numberOfProcessors: [1, 1] #TODO what if only one number is given??!!
+numberOfProcessors: [1, 1]
 metagene: [False, False]
 transcriptID: [transcript, transcript]
 exonID: [exon, exon]
