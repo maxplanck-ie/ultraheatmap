@@ -57,6 +57,6 @@ To terminate the environment run:
 
 usage example:
 
-  $ computeOrderedMatrix -S bigwig1.bw bigwig2.bw -R 2peaks.bed -o final_matrix.gz -p 20 -a 100 --outputReferenceMatrix intermediate_matrix.gz -op intermediate_matrix_heatmap.png -g 1 --kmeans 2
-  
+  $ computeOrderedMatrix -S bigwig1.bw bigwig2.bw -R 2peaks.bed -o final_matrix.gz -p 20 -a 100 --outputReferenceMatrix \     intermediate_matrix.gz -op intermediate_matrix_heatmap.png -g 1 --kmeans 2
+
   the above command line produces a `deeptools` matrix on both given bw while the regions are the clusters obtained from the given bed files after using kmeans clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first bigwig file (`-g 1`).
