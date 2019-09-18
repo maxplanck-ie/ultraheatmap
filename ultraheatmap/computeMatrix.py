@@ -103,7 +103,7 @@ def __clustering(hm, indexList, configfile):
         hm.matrix.sort_groups(sort_using=configfile["sortUsing"][0],
                               sort_method=configfile["sortRegions"][0],
                               sample_list=indexList)
-
+    outputMatrix_path = ""
     if configfile["outputReferenceMatrix"] is not None:
         outputMatrix_path = os.path.join(configfile["outputReferenceMatrix"])
         hm.save_matrix(outputMatrix_path)
@@ -113,6 +113,11 @@ def __clustering(hm, indexList, configfile):
         is a value if it is read directly but is a list if it is read from a
         file."""
     if configfile["plotOutput"] is not None:
+        if configfile["outputReferenceMatrix"] is None:
+            outputMatrix_path = os.path.dirname(os.path.abspath(configfile["matrixOutput"]))
+            outputMatrix_path += "/outputReferenceMatrix.gz"
+            hm.save_matrix(outputMatrix_path)
+
         hm1 = heatmapper()
         hm1.read_matrix_file(outputMatrix_path)
         color_dict = {'colorMap': ['RdYlBu'],
