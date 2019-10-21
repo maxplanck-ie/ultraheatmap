@@ -24,30 +24,7 @@ First, get the source code:
 
 Afterwards, create a new conda environment with all the Prerequisites by running the following command line:
 
-<<<<<<< HEAD
               $ conda env create -f requirements.yaml
-=======
-Then activate the environment:
-
-              source activate ultraheatmap
-
-To install the program in this environment:
-
-              python setup.py install
-
-from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
-
-              computeOrderedMatrix -h
-
-or
-
-              AddFeatureToMatrix -h
-
-To terminate the environment run:
-
-              source deactivate
->>>>>>> d0156beb43e1de866d09c9e9b421e702a8359547
-
 
 
 Then activate the environment:
