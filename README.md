@@ -76,25 +76,25 @@ or
                             [-a AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...]]
                             [-op PLOTOUTPUT] [--config USERCONFIG]
 
-The program sorts/clusters regions considering the reference samples ( given
-by --groupUsingSamples) and makes a matrix over all the samples using the
-sorted/clustered regions.
+                            The program sorts/clusters regions considering the reference samples ( given
+                              by --groupUsingSamples) and makes a matrix over all the samples using the
+                              sorted/clustered regions.
 
-optional arguments:
-  -h, --help            show this help message and exit
+                              optional arguments:
+                              -h, --help            show this help message and exit
 
-required arguments:
-  -S BIGWIGS [BIGWIGS ...], --scoreFileName BIGWIGS [BIGWIGS ...]
-                        bigwig files, the ordered matrix is computedfrom.
-                        (default: None)
-  -R REGIONOFINTEREST [REGIONOFINTEREST ...], --regionsFileName REGIONOFINTEREST [REGIONOFINTEREST ...]
-                        BED files definig the genomic regions of the
-                        matrix.Multiple files can be provided, but the per
-                        group information will be lost due to the clustering
-                        (default: None)
-  -o MATRIXOUTPUT, --outFileName MATRIXOUTPUT
-                        Matrix clustered by the given reference samples
-                        (default: None)
+                              required arguments:
+                              -S BIGWIGS [BIGWIGS ...], --scoreFileName BIGWIGS [BIGWIGS ...]
+                              bigwig files, the ordered matrix is computedfrom.
+                              (default: None)
+                              -R REGIONOFINTEREST [REGIONOFINTEREST ...], --regionsFileName REGIONOFINTEREST  [REGIONOFINTEREST ...]
+                              BED files definig the genomic regions of the
+                              matrix.Multiple files can be provided, but the per
+                              group information will be lost due to the clustering
+                              (default: None)
+                              -o MATRIXOUTPUT, --outFileName MATRIXOUTPUT
+                              Matrix clustered by the given reference samples
+                              (default: None)
 
 optional arguments:
   -g REFINDICES [REFINDICES ...], --groupUsingSamples REFINDICES [REFINDICES ...]
