@@ -80,10 +80,10 @@ or
                               by --groupUsingSamples) and makes a matrix over all the samples using the
                               sorted/clustered regions.
 
-                              optional arguments:
-                              -h, --help            show this help message and exit
+              optional arguments:
+                -h, --help            show this help message and exit
 
-                              required arguments:
+              required arguments:
 
                               -S BIGWIGS [BIGWIGS ...], --scoreFileName BIGWIGS [BIGWIGS ...]
                               bigwig files, the ordered matrix is computedfrom.
@@ -113,7 +113,8 @@ or
                               samples into account to sort/cluster the regions.
                               (default: None)
 
-                              -p NUMBEROFPROCESSORS [NUMBEROFPROCESSORS ...], --numberOfProcessors  NUMBEROFPROCESSORS [NUMBEROFPROCESSORS ...]
+                              -p NUMBEROFPROCESSORS [NUMBEROFPROCESSORS ...],
+                              --numberOfProcessors  NUMBEROFPROCESSORS [NUMBEROFPROCESSORS ...]
                               From deepTools doc: Number of processors to use. Type
                               "max/2" to use half the maximum number of processors
                               or "max" to use all available processors. (default:
@@ -138,13 +139,17 @@ or
                               hierarchicalclustering as defined by deepTools
                               plotHeatmap (default: None)
 
-                              -b BEFOREREGIONSTARTLENGTH [BEFOREREGIONSTARTLENGTH ...], --upstream BEFOREREGIONSTARTLENGTH [BEFOREREGIONSTARTLENGTH ...], --beforeRegionStartLength BEFOREREGIONSTARTLENGTH [BEFOREREGIONSTARTLENGTH ...]
+                              -b BEFOREREGIONSTARTLENGTH [BEFOREREGIONSTARTLENGTH ...],
+                              --upstream BEFOREREGIONSTARTLENGTH [BEFOREREGIONSTARTLENGTH ...],
+                              --beforeRegionStartLength BEFOREREGIONSTARTLENGTH [BEFOREREGIONSTARTLENGTH ...]
                               From deepTools doc: Distance upstream of the start
                               site of the regions defined in the region file. If the
                               regions are genes, this would be the distance upstream
                               of the transcription start site. (default: [0, 0])
 
-                              -a AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...], --downstream AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...], --afterRegionStartLength AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...]
+                              -a AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...],
+                              --downstream AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...],
+                              --afterRegionStartLength AFTERREGIONSTARTLENGTH [AFTERREGIONSTARTLENGTH ...]
                               From deepTools doc: Distance downstream of the end
                               site of the given regions. If the regions are genes,
                               this would be the distance downstream of the
@@ -159,14 +164,67 @@ or
                               --config USERCONFIG   Added to the default configuration, overwrites if
 
 
-#example:
+example
+
               $ computeOrderedMatrix -S signal1.bw signal2.bw -R regions.bed \
               -o final_matrix.gz -p 20 -a 100 -b 100 --outputReferenceMatrix intermediate_matrix.gz \
               -op intermediate_matrix_heatmap.png -g 1 --kmeans 2
 
-  the above command line produces a `deeptools` matrix on both given `.bw` files while
-  the regions are the clusters obtained from the given `.bed` file after using `kmeans`
-  clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first bigwig file (`-g 1`).
+the above command line produces a `deeptools` matrix on both given `.bw` files while
+the regions are the clusters obtained from the given `.bed` file after using `kmeans`
+clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first bigwig file (`-g 1`).
+
+
+              $ AddFeatureToMatrix -h
+              usage: AddFeatureToMatrix [-h] --matrix STR --output STR --feature.tables
+                          TABLES [TABLES ...]
+                          [--annotationFeature ANNOTATIONFEATURE]
+                          [--filteredGenomeGtfOutputFile ANNOTATIONOUTPUT]
+                          [--genomeGtf STR]
+                          [--featureNames FEATURES [FEATURES ...]]
+                          [--featureIdColumn IDCOLUMN]
+                          [--referencePoint REFERENCEPOINT]
+
+              optional arguments:
+                        -h, --help            show this help message and exit
+
+              required arguments:
+
+                        --matrix STR, -m STR  deeptools matrix (default: None)
+
+                        --output STR, -o STR  output matrix (default: None)
+
+              optional arguments:
+
+                        --feature.tables TABLES [TABLES ...], -t TABLES [TABLES ...]
+                          gene id tables or name based tables, tables should be
+                          space-separated. (default: None)
+
+                        --annotationFeature ANNOTATIONFEATURE, -F ANNOTATIONFEATURE
+                          annotation file can be filtered by a feature such as
+                          gene, exon or transcript (default: None)
+
+                        --filteredGenomeGtfOutputFile ANNOTATIONOUTPUT, -oa ANNOTATIONOUTPUT
+                          saving filtered annotation file if --annotationFeature
+                          (default: None)
+
+                        --genomeGtf STR, -g STR
+                          genome annotation (gtf) to map peaks to closest gene.
+                          Will be filtered through '--annotationFeature'
+                          (default: None)
+
+                        --featureNames FEATURES [FEATURES ...], -f FEATURES [FEATURES ...]
+                          A list of features of interest from gene id tables or
+                          name based tables (default: ['log2(FC)'])
+
+                        --featureIdColumn IDCOLUMN
+                          name of the column includes ids/names (default:
+                            GeneID)
+
+                        --referencePoint REFERENCEPOINT
+                          If closest TSS or TES is needed, otherwise closest
+                          gene body will be found (default: TSS)
+
 
               $ AddFeatureToMatrix -m  deeptools_matrix.gz -o appended_matrix.gz \
               -t feature_table.tsv -g annotaion.gtf -f column_of_interest_header \
