@@ -21,29 +21,14 @@ First, get the source code:
 
              $  git clone https://github.com/maxplanck-ie/ultraheatmap.git
 
-<<<<<<< HEAD
-Afterwards, get the source code:
 
-             git clone https://github.com/maxplanck-ie/ultraheatmap.git
-
-Then activate the environment:
-=======
 Afterwards, create a new conda environment with all the Prerequisites by running the following command line:
->>>>>>> origin/develop
 
-
-<<<<<<< HEAD
-To install the program in this environment:
-=======
               $ conda env create -f requirements.yaml
->>>>>>> origin/develop
 
 
-<<<<<<< HEAD
-from the ultraheatmap directory. Now, you already have the program installed and can access each of the modules by calling them. Try
-=======
+
 Then activate the environment:
->>>>>>> origin/develop
 
               $ conda activate ultraheatmap
 
