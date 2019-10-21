@@ -1,2 +1,2 @@
 include *.yaml
-recursive-include ultraHeatmaps/configs *
+recursive-include ultraheatmap/configs *

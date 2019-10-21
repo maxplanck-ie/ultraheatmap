@@ -1,0 +1,40 @@
+#########Default config file##############
+###Use `` to fill the irrelevant fields in
+### First value is for the matrix before clustering the second one is for the
+### matrix after clustering.
+###scale-regions###
+regionBodyLength: [1000,1000]  # 0 for reference-point 1000 for scale-regions
+startLabel: [TSS, TSS]
+endLabel: [TES, TES]
+unscaled5prime: [0,0]
+unscaled3prime: [0,0]
+
+####reference-point####
+referencePoint: [TSS, TSS]
+nanAfterEnd: [False, False]
+
+######both#####
+beforeRegionStartLength: [0,0]
+afterRegionStartLength: [0,0]
+binSize: [10,10]
+sortRegions: [keep, keep]  ####{descend,ascend,no,keep}
+sortUsing: [mean, mean]   ####{mean,median,max,min,sum,region_length}
+sortUsingSamples:
+averageTypeBins: [mean, mean]
+missingDataAsZero: [False, False]
+skipZeros: [False, False]
+minThreshold: ['','']
+maxThreshold: ['','']
+blackListFileName: ['' , '']
+samplesLabel: ##should be equal to the number of bw files
+smartLabels: [False, False]
+verbose: [False, False]
+scale: [1, 1]
+numberOfProcessors: [1, 1]
+metagene: [False, False]
+transcriptID: [transcript, transcript]
+exonID: [exon, exon]
+transcript_id_designator: [transcript_id, transcript_id]
+
+####Optional####
+regionsLabel:
