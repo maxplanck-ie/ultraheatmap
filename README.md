@@ -37,7 +37,9 @@ To install the program in this environment:
 from the ultraheatmap directory.
 
 
-Alternatively, `pip` or `conda` can be used to install the package. We highly recommend you to create a new conda environment prior to the installation and install it after activating this environment. This can be done as follows:
+Alternatively, `pip` or `conda` can be used to install the package. We highly
+recommend you to create a new conda environment prior to the installation and
+install it after activating this environment. This can be done as follows:
 
               $ conda create -n ultraheatmap python=3.6
 
@@ -60,8 +62,16 @@ or
               $ conda deactivate
 
 
-usage example:
+### Usage example
 
-  $ computeOrderedMatrix -S bigwig1.bw bigwig2.bw -R 2peaks.bed -o final_matrix.gz -p 20 -a 100 --outputReferenceMatrix \     intermediate_matrix.gz -op intermediate_matrix_heatmap.png -g 1 --kmeans 2
+              $ computeOrderedMatrix -S signal1.bw signal2.bw -R regions.bed \
+              -o final_matrix.gz -p 20 -a 100 -b 100 --outputReferenceMatrix intermediate_matrix.gz \
+              -op intermediate_matrix_heatmap.png -g 1 --kmeans 2
 
-  the above command line produces a `deeptools` matrix on both given bw while the regions are the clusters obtained from the given bed files after using kmeans clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first bigwig file (`-g 1`).
+  the above command line produces a `deeptools` matrix on both given `.bw` files while
+  the regions are the clusters obtained from the given `.bed` file after using `kmeans`
+  clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first bigwig file (`-g 1`).
+
+              $ AddFeatureToMatrix -m  deeptools_matrix.gz -o appended_matrix.gz \
+              -t feature_table.tsv -g annotaion.gtf -f column_of_interest_header \
+              --featureIdColumn id_col_header
