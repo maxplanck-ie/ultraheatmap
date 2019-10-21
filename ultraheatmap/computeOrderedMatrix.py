@@ -59,11 +59,11 @@ def parse_args(defaults={}):
                           dest="refIndices",
                           nargs='+',
                           help="sample indices, 1-based, to define the reference"
-                          "samples. The reference samples will be used for "
+                          " samples. The reference samples will be used for "
                           "sorting/clustering the regions, before all samples "
                           "will be used to generate the output matrix. Several "
                           "indices can be added while separated by space from "
-                          "each other. Defaul it None and will take all the "
+                          "each other. Default it None and will take all the "
                           "samples into account to sort/cluster the regions.",
                           type=int,
                           default=None)
