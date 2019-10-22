@@ -12,7 +12,7 @@ from ultraheatmap.mapClosestGenes import keymap_from_closest_genes
 
 # TODO:
 def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput,
-                       referencePoint, filename="/data/processing/rabbani/test_ultraheatmap/test.bed"):
+                       referencePoint, filename):
     """
     Find the closest gene using bedtools.closest
     """
@@ -41,6 +41,7 @@ def find_closest_genes(peaks, annotation, annotationFeature, filteredoutput,
 
 def __get_reference_coordinate(feature, referencePoint):
     """
+        Returns TSS or TES of a gtf feature.
     """
     if (feature.strand == '+' and referencePoint == 'TSS') or\
        (feature.strand == '-' and referencePoint == 'TES'):
@@ -75,7 +76,8 @@ def __filter_annotation(filteredoutput, annotationFeature, annotation,
 def extract_ge_folchange_per_peak(peaks, tables, closestMapping, features,
                                   IdColumn, hm):
     """
-
+    Updates the values on the input matrix by appending the requested values
+    from the given tables when closest genes have been found.
     """
     ## keyMap_closest: peak_key:gene_id
     ## peak_keys: cols 1-7 from bed format (1-based index)
@@ -85,6 +87,9 @@ def extract_ge_folchange_per_peak(peaks, tables, closestMapping, features,
     __update_matrix_values(peaks, keyMap_closest, tables,features,IdColumn,hm)
 
 def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
+    """
+
+    """
     v = np.empty((len(peaks), len(features)), dtype=float)
     for i, peak in enumerate(peaks):
         key = ';'.join(map(str,peak))
@@ -101,6 +106,10 @@ def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
 
 
 def __getValuesFromNameTable(peaks, table, features, IdColumn):
+    """
+    Gets corresponding values for the given tables in case of one to one
+    mapping. The name column is compared to find the exact match.
+    """
     v = np.empty((len(peaks), len(features)), dtype=float)
     for i, peak in enumerate(peaks):
         name = peak[3]
@@ -116,7 +125,8 @@ def __getValuesFromNameTable(peaks, table, features, IdColumn):
 
 def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm): #TODO two different update_value function can be merged into one, just need to an if / else over the arg.annotation
     """
-
+    Updates matrix values when annotation file is given and closest genes
+    have been found.
     """
     assert len(keyMap_closest) == len(peaks)
     valuesTab = np.empty((len(peaks), len(tables)*len(features)), dtype=float)
@@ -147,7 +157,7 @@ def parseMatrixRegions(regions):
 
 def __update_parameters(hm,length):
     """
-
+    Updates matrix parameters
     """
     for i in range(length):
         hm.parameters['unscaled 5 prime'].append(0)

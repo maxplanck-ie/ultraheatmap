@@ -56,7 +56,7 @@ Now, you already have the program installed and can access each of the modules b
 
 or
 
-              $  AddFeatureToMatrix -h
+              $  addFeatureToMatrix -h
 
 
               $ conda deactivate
@@ -174,8 +174,8 @@ the regions are the clusters obtained from the given `.bed` file after using `km
 clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first bigwig file (`-g 1`).
 
 
-              $ AddFeatureToMatrix -h
-              usage: AddFeatureToMatrix [-h] --matrix STR --output STR --feature.tables
+              $ addFeatureToMatrix -h
+              usage: addFeatureToMatrix [-h] --matrix STR --output STR --feature.tables
                           TABLES [TABLES ...]
                           [--annotationFeature ANNOTATIONFEATURE]
                           [--filteredGenomeGtfOutputFile ANNOTATIONOUTPUT]
@@ -183,6 +183,7 @@ clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first
                           [--featureNames FEATURES [FEATURES ...]]
                           [--featureIdColumn IDCOLUMN]
                           [--referencePoint REFERENCEPOINT]
+                          [--closestGenesOutput CLOSESTGENESOUTPUT]
 
               optional arguments:
                 -h, --help            show this help message and exit
@@ -193,11 +194,11 @@ clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first
 
                 --output STR, -o STR  output matrix (default: None)
 
-              optional arguments:
-
                 --feature.tables TABLES [TABLES ...], -t TABLES [TABLES ...]
                   gene id tables or name based tables, tables should be
                   space-separated. (default: None)
+
+              optional arguments:
 
                 --annotationFeature ANNOTATIONFEATURE, -F ANNOTATIONFEATURE
                   annotation file can be filtered by a feature such as
@@ -222,15 +223,19 @@ clustering algorithm with 2 clusters (`--kmeans 2`) based on the signal of first
 
                 --referencePoint REFERENCEPOINT
                   If closest TSS or TES is needed, otherwise closest
-                  gene body will be found (default: TSS)
+                  gene body will be found (default: None)
+
+                --closestGenesOutput CLOSESTGENESOUTPUT, -og CLOSESTGENESOUTPUT
+                  A bed file to save the closest genes (default: None)
+
 
 
 example
 
-              $ AddFeatureToMatrix -m  deeptools_matrix.gz -o appended_matrix.gz \
+              $ addFeatureToMatrix -m  deeptools_matrix.gz -o appended_matrix.gz \
               -t feature_table.tsv -g annotaion.gtf -f column_of_interest_header \
               --featureIdColumn id_col_header
 
 The above command adds extra columns to the input matrix. The output will be a matrix with
 `deeptools` format which can be visualized by `deeptools plotHeatmap`. The extra columns could be gene expression. If annotation file is provided, program finds the closest gene for each region of the input matrix and looks for the gene expression of that gene from the given feature tables.
-If no annotation is given, program checks for the exact match between regions name from the input matrix and finds the same name on the given feature tables. 
+If no annotation is given, program checks for the exact match between regions name from the input matrix and finds the same name on the given feature tables.
