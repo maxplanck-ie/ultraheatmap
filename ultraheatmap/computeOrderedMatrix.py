@@ -58,12 +58,14 @@ def parse_args(defaults={}):
                           "--groupUsingSamples",
                           dest="refIndices",
                           nargs='+',
-                          help="sample indices, 1-based, to define the reference"
-                          " samples. The reference samples will be used for "
-                          "sorting/clustering the regions, before all samples "
-                          "will be used to generate the output matrix. Several "
-                          "indices can be added while separated by space from "
-                          "each other. Default it None and will take all the "
+                          help="sample indices (order of the bigwig files "
+                          "given via -S).It is 1-based and is used to define "
+                          "the reference samples. The reference samples will "
+                          "be used for sorting/clustering the regions (given "
+                          "bed files), before all samples will be used to "
+                          "generate the output matrix. Several indices can be "
+                          "added while separated by space from each other. "
+                          "Default is None and will take all the "
                           "samples into account to sort/cluster the regions.",
                           type=int,
                           default=None)
