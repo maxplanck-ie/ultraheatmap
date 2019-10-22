@@ -34,17 +34,14 @@ Then activate the environment:
 To install the program in this environment:
 
               $ python setup.py install
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
+
 from the ultraheatmap directory.
 
 
 Alternatively, `pip` or `conda` can be used to install the package. We highly
 recommend you to create a new conda environment prior to the installation and
 install it after activating this environment. This can be done as follows:
-<<<<<<< HEAD
 
               $ conda create -n ultraheatmap python=3.6
 
@@ -53,16 +50,6 @@ install it after activating this environment. This can be done as follows:
               $ conda install -c bioconda -c conda-forge ultraheatmap
 
 
-=======
-
-              $ conda create -n ultraheatmap python=3.6
-
-              $ conda activate ultraheatmap
-
-              $ conda install -c bioconda -c conda-forge ultraheatmap
-
-
->>>>>>> origin/master
 Now, you already have the program installed and can access each of the modules by calling them. Try
 
               $  ultraheatmap -h ,
