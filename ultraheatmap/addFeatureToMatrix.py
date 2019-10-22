@@ -22,22 +22,26 @@ def parse_args():
     parsing arguments
     """
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
+
     # required argumnets:
-    parser.add_argument("--matrix",
-                        "-m",
-                        dest="deeptoolsMatrix",
-                        type=str,
-                        metavar="STR",
-                        help="deeptools matrix",
-                        required=True)
-    parser.add_argument("--output",
-                        "-o",
-                        dest="outputMatrix",
-                        type=str,
+    required.add_argument("--matrix",
+                          "-m",
+                          dest="deeptoolsMatrix",
+                          type=str,
+                          metavar="STR",
+                          help="deeptools matrix",
+                          required=True)
+    required.add_argument("--output",
+                          "-o",
+                          dest="outputMatrix",
+                          type=str,
                         metavar="STR",
                         help="output matrix",
                         required=True)
-    parser.add_argument("--feature.tables",
+    required.add_argument("--feature.tables",
                         "-t",
                         dest="tables",
                         nargs='+',
@@ -46,45 +50,57 @@ def parse_args():
                         required=True)
 
     # optional arguments
-    parser.add_argument("--annotationFeature",
+    optional.add_argument("--annotationFeature",
                         "-F",
                         dest="annotationFeature",
                         type=str,
                         help="annotation file can be filtered by a feature "
                              "such as gene, exon or transcript",
                         default=None)
-    parser.add_argument("--filteredGenomeGtfOutputFile",
+
+    optional.add_argument("--filteredGenomeGtfOutputFile",
                         "-oa",
                         dest="annotationOutput",
                         type=str,
                         help="saving filtered annotation file if "
                              "--annotationFeature",
                         default=None)
-    parser.add_argument("--genomeGtf",
+
+    optional.add_argument("--genomeGtf",
                         "-g",
                         dest="annotation",
                         type=str,
                         metavar="STR",
                         help="genome annotation (gtf) to map peaks to closest gene. Will be filtered through '--annotationFeature'",
                         default=None)
-    parser.add_argument("--featureNames",
+    optional.add_argument("--featureNames",
                         "-f",
                         dest="Features",
                         nargs='+',
                         help="A list of features of interest from gene id "
                              "tables or name based tables",
                         default=["log2(FC)"])
-    parser.add_argument("--featureIdColumn",
+
+    optional.add_argument("--featureIdColumn",
                         dest="idcolumn",
                         type=str,
                         help="name of the column includes ids/names",
                         default="GeneID")
-    parser.add_argument("--referencePoint",
+
+    optional.add_argument("--referencePoint",
                         dest="referencePoint",
                         type=str,
                         help="If closest TSS or TES is needed, otherwise "
                              "closest gene body will be found",
-                        default="TSS")
+                        default=None)
+
+    optional.add_argument("--closestGenesOutput",
+                          "-og",
+                          dest="closestGenesOutput",
+                          type=str,
+                          help="A bed file to save the closest genes",
+                          default=None)
+
     return parser
 
 
@@ -109,7 +125,8 @@ def main():
         closestMapping = find_closest_genes(regions, args.annotation,
                                             args.annotationFeature,
                                             args.annotationOutput,
-                                            args.referencePoint)  # XXX instead of all these arguments i can simply add args.
+                                            args.referencePoint,
+                                            args.closestGenesOutput)  # XXX instead of all these arguments i can simply add args.
 
         # paste an extra column per table to the input matrix
         extract_ge_folchange_per_peak(regions, args.tables, closestMapping,

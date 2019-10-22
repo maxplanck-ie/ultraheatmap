@@ -23,7 +23,7 @@ setup(
     name='ultraheatmap',
     version=__version__,
     packages=find_packages(),
-    scripts=['bin/computeOrderedMatrix', 'bin/AddFeatureToMatrix',
+    scripts=['bin/computeOrderedMatrix', 'bin/addFeatureToMatrix',
              'bin/ultraheatmap'],
     license="MIT",
     long_description=open('README.md').read(),

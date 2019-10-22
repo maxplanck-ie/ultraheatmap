@@ -9,7 +9,7 @@ def parse_arguments(args=None):
         description="""
                     [Tools]
                     computeOrderedMatrix
-                    AddFeatureToMatrix
+                    addFeatureToMatrix
                     """)
     parser.add_argument('--version', action='version',
                         version='%(prog)s {}'.format(__version__))

@@ -26,7 +26,7 @@ skipZeros: [False, False]
 minThreshold: ['','']
 maxThreshold: ['','']
 blackListFileName: ['' , '']
-samplesLabel: ##should be equal to the number of bed files
+samplesLabel: ##should be equal to the number of bw files
 smartLabels: [False, False]
 verbose: [False, False]
 scale: [1, 1]
