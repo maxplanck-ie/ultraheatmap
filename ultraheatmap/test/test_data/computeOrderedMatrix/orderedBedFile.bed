@@ -1,0 +1,4 @@
+#chrom	start	end	name	score	strand	thickStart	thickEnd	itemRGB	blockCount	blockSizes	blockStart	deepTools_group
+ch1	100	150	CG11023	0.0	+	100	150	0	1	50	99	cluster_1
+ch2	150	175	cda5	0.0	-	150	175	0	1	25	149	cluster_1
+ch3	100	125	cda8	0.0	+	100	125	0	1	25	99	cluster_2
