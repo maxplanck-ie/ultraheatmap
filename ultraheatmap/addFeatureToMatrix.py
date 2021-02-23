@@ -127,7 +127,6 @@ def main():
                                             args.annotationOutput,
                                             args.referencePoint,
                                             args.closestGenesOutput)  # XXX instead of all these arguments i can simply add args.
-
         # paste an extra column per table to the input matrix
         extract_ge_folchange_per_peak(regions, args.tables, closestMapping,
                                       args.Features, args.idcolumn, hm)
