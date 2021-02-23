@@ -83,13 +83,15 @@ def extract_ge_folchange_per_peak(peaks, tables, closestMapping, features,
     ## peak_keys: cols 1-7 from bed format (1-based index)
     Peaks = BedTool(peaks)
     Peaks=Peaks.sort()
-    keyMap_closest = keymap_from_closest_genes(closestMapping, Peaks)
+    field_count = Peaks.field_count()
+    keyMap_closest = keymap_from_closest_genes(closestMapping, peaks, field_count)
     __update_matrix_values(peaks, keyMap_closest, tables,features,IdColumn,hm)
 
 def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
     """
 
     """
+    count = 0
     v = np.empty((len(peaks), len(features)), dtype=float)
     for i, peak in enumerate(peaks):
         key = ';'.join(map(str,peak))
@@ -99,9 +101,12 @@ def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
                 x = float(table[table[IdColumn] == value][feature])
                 if np.isnan(x):
                      x = np.nan
+                else:
+                    count = count + 1
                 v[i,j] = x
         else:
             v[i] = [ np.nan ]*len(features)
+ 
     return v
 
 
@@ -129,10 +134,11 @@ def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm
     have been found.
     """
     assert len(keyMap_closest) == len(peaks)
-    valuesTab = np.empty((len(peaks), len(tables)*len(features)), dtype=float)
+    valuesTab = np.empty([len(peaks),len(tables)*len(features)], dtype= float)
     for i, table in enumerate(tables):
         table = parseTable(table)
         values = __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn)
+        
         valuesTab[:,i*len(features):(i*len(features)+len(features))] = values
         for feature in features:
             hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i)+"_"+feature]
@@ -142,10 +148,12 @@ def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm
     __update_parameters(hm,len(tables)*len(features))
 
 
-
-
 def parseTable(table_file):
+    """
+
+    """
     return(pd.read_csv(table_file, sep ='\t'))
+
 
 def parseMatrixRegions(regions):
     all_regions = []
@@ -154,6 +162,7 @@ def parseMatrixRegions(regions):
             for start , end in region[1]:
                 all_regions.append([region[0],start, end, region[2], region[3], region[4], region[5]])
     return all_regions
+
 
 def __update_parameters(hm,length):
     """
@@ -167,6 +176,7 @@ def __update_parameters(hm,length):
         hm.parameters['upstream'].append(0)
         hm.parameters['ref point'].append(None)
         hm.parameters['bin size'].append(10)
+
 
 def update_matrix_values(peaks, tables,features, IdColumn,hm):
     """
@@ -185,6 +195,7 @@ def update_matrix_values(peaks, tables,features, IdColumn,hm):
     current_last_col = hm.matrix.sample_boundaries[-1]
     hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+current_last_col for x in range(len(tables)*len(features))]
     __update_parameters(hm,len(tables)*len(features))
+
 
 def __read_tables_columns(tables, features):
     for table in tables:
