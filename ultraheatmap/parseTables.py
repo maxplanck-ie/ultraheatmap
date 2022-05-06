@@ -84,16 +84,18 @@ def extract_ge_folchange_per_peak(peaks, tables, closestMapping, features,
     Peaks = BedTool(peaks)
     Peaks=Peaks.sort()
     field_count = Peaks.field_count()
-    keyMap_closest = keymap_from_closest_genes(closestMapping, peaks, field_count)
+    keyMap_closest = keymap_from_closest_genes(closestMapping, peaks, field_count) ##TODO very inefficient!!
+    print("start updating the matrix")
     __update_matrix_values(peaks, keyMap_closest, tables,features,IdColumn,hm)
 
 def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
     """
 
     """
+    print(table[IdColumn].values)
     count = 0
     v = np.empty((len(peaks), len(features)), dtype=float)
-    for i, peak in enumerate(peaks):
+    for i, peak in enumerate(peaks): ##TODO get rid of the for loop
         key = ';'.join(map(str,peak))
         value = keyMap_closest[key]
         if value in table[IdColumn].values: #value is geneId
@@ -106,7 +108,10 @@ def __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn):
                 v[i,j] = x
         else:
             v[i] = [ np.nan ]*len(features)
- 
+            # print("HERE!", IdColumn)
+            # print(value)
+
+
     return v
 
 
@@ -138,13 +143,15 @@ def __update_matrix_values(peaks, keyMap_closest, tables, features, IdColumn, hm
     for i, table in enumerate(tables):
         table = parseTable(table)
         values = __getValuesFromGETable(peaks, keyMap_closest, table, features, IdColumn)
-        
+        print(len(values))
+        print(sum(~np.isnan(values)))
         valuesTab[:,i*len(features):(i*len(features)+len(features))] = values
         for feature in features:
             hm.matrix.sample_labels = hm.matrix.sample_labels + ["table"+str(i)+"_"+feature]
     hm.matrix.matrix = np.concatenate((hm.matrix.matrix, valuesTab[:,]), axis = 1)
     current_last_col = hm.matrix.sample_boundaries[-1]
     hm.matrix.sample_boundaries = hm.matrix.sample_boundaries +[x+1+current_last_col for x in range(len(tables)*len(features))]
+    print(valuesTab)
     __update_parameters(hm,len(tables)*len(features))
 
 
