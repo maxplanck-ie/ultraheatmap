@@ -1,14 +1,11 @@
 .gitignore
 *__pycache__*
 *.pyc
-test.py
 *.swp
-testing
 data/
 .ipynb_*
 *.ipynb
 sandbox
-test_*
 *.pyc
 build/
 *egg-info

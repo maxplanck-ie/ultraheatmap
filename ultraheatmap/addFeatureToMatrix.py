@@ -128,6 +128,7 @@ def main():
                                             args.referencePoint,
                                             args.closestGenesOutput)  # XXX instead of all these arguments i can simply add args.
         # paste an extra column per table to the input matrix
+        print("closest gene is found")
         extract_ge_folchange_per_peak(regions, args.tables, closestMapping,
                                       args.Features, args.idcolumn, hm)
 
