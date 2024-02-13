@@ -1,0 +1,32 @@
+name: build
+
+on:
+  push:
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mamba-org/setup-micromamba@main
+        with:
+          environment-file: requirements.yaml
+          cache-downloads: true
+          environment-name: ultraheatmap
+      - name: build
+        run: |
+          micromamba activate ultraheatmap
+          pip install .
+      - name: addFeatureToMatrix
+        run: |
+          micromamba activate ultraheatmap
+          bash ultraheatmap/test/test_data/addFeatureToMatrix/addFeatureToMatrix.sh
+      - name: computeOrderedMatrix
+        run: |
+          micromamba activate ultraheatmap
+          bash ultraheatmap/test/test_data/computeOrderedMatrix/computeOrderedMatrix.sh
+

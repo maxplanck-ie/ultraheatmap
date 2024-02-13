@@ -123,7 +123,7 @@ def __getValuesFromNameTable(peaks, table, features, IdColumn):
         name = peak[3]
         if name in table[IdColumn].values:
            for j, feature in enumerate(features):
-                x = float(table[table[IdColumn] == name][feature])
+                x = float(table[table[IdColumn] == name][feature].iloc[0])
                 if np.isnan(x):
                      x = np.nan
                 v[i,j] = x
