@@ -1,0 +1,36 @@
+bws:
+  bw1: "/path/to/bw1.bw"
+  bw2: "/path/to/bw2.bw"
+
+path_2_rna: "/path/to/rna"
+regions_to_plot: "/path/region.bed"
+# output params
+output_path: "/path/to/output"
+matrix_name: "output.gz"
+scale_region: True
+before_region: 2000
+after_region: 0
+regionBodyLength: 3500
+binsize: 10
+refpoint: ""
+deg_list: ["rn1.tsv", "rna2.tsv"]
+deg_names: ["rn1", "rna2"]
+ultraheatmap_matrix_name: "appended_output.gz"
+w_mapping: False
+gtf:""
+featureIdColumn: 'GeneID'
+featureNames: 'log2FoldChange'
+zmin: "" #lowest intensity to plot
+zmax: "" #highest intensity to plot
+colors: "" #matplot lib colors
+averageTypeBins: ""
+sortUsing: ""
+sort_by_sample: ""
+sorting_direction: " descend "
+reg_labels: " "
+heatmap_name: "plotname.png"
+sorted_regions: ""
+sorted_matrix: ""
+remove_na: False
+kmeans: ""
+clusterUsingSamples: ""
